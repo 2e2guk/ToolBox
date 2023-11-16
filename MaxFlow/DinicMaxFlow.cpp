@@ -1,5 +1,6 @@
-// Dinic's Maxflow algorithm
-// O(V^2E) <- G=(V, E)
+// Dicic's Maxflow algorithm
+// O(V^2E) 
+// main 함수 예시는 boj 11406
 #include <bits/stdc++.h>
 using namespace std;
 
@@ -74,3 +75,27 @@ public:
         return total;
     }
 };
+
+int main() {
+    ios_base::sync_with_stdio(false); cin.tie(nullptr);
+    int N, M; cin >> N >> M;
+
+    Dinic<int> g(N + M + 2);
+    int s = 0, t = N + M + 1;
+    for (int i = 1; i <= N; i++) {
+        int a; cin >> a;
+        g.addEdge(s, i, a);
+    }
+    for (int i = 1; i <= M; i++) {
+        int b; cin >> b;
+        g.addEdge(N + i, t, b);
+    }
+    for (int i = 1; i <= M; i++) {
+        for (int j = 1; j <= N; j++) {
+            int c; cin >> c;
+            g.addEdge(j, N + i, c);
+        }
+    }
+    cout << g.DinicMaxflow(s, t);
+    return 0;
+}
