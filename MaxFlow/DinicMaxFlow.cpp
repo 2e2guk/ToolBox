@@ -13,7 +13,7 @@ class Dinic {
     int V;
     vector<int> level;
     vector<vector<Edge>> adj;
-    
+
 public:
     Dinic(int V) : V(V), adj(V), level(V) {}
 
@@ -22,6 +22,10 @@ public:
         Edge b{u, int(adj[u].size()), 0, 0};
         adj[u].push_back(a);
         adj[v].push_back(b);
+    }
+    void clear() {
+        for(int i = 0; i < V; i++) adj[i].clear();
+        fill(level.begin(), level.end(), 0);
     }
     bool BFS(int s, int t) {
         fill(level.begin(), level.end(), -1);
@@ -75,16 +79,16 @@ int main() {
 
     Dinic<int> g(N + M + 2);
     int s = 0, t = N + M + 1;
-    for (int i = 1; i <= N; i++) {
+    for(int i = 1; i <= N; i++) {
         int a; cin >> a;
         g.addEdge(s, i, a);
     }
-    for (int i = 1; i <= M; i++) {
+    for(int i = 1; i <= M; i++) {
         int b; cin >> b;
         g.addEdge(N + i, t, b);
     }
-    for (int i = 1; i <= M; i++) {
-        for (int j = 1; j <= N; j++) {
+    for(int i = 1; i <= M; i++) {
+        for(int j = 1; j <= N; j++) {
             int c; cin >> c;
             g.addEdge(j, N + i, c);
         }
