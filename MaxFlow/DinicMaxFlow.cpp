@@ -10,11 +10,10 @@ class Dinic {
         int v, rev;
         FlowType flow, C;
     };
-
     int V;
     vector<int> level;
     vector<vector<Edge>> adj;
-
+    
 public:
     Dinic(int V) : V(V), adj(V), level(V) {}
 
@@ -24,13 +23,11 @@ public:
         adj[u].push_back(a);
         adj[v].push_back(b);
     }
-
     bool BFS(int s, int t) {
         fill(level.begin(), level.end(), -1);
         level[s] = 0;
         queue<int> q;
         q.push(s);
-
         while (!q.empty()) {
             int u = q.front();
             q.pop();
@@ -43,7 +40,6 @@ public:
         }
         return level[t] >= 0;
     }
-
     FlowType DFS(int u, FlowType flow, int t, vector<int> &start) {
         if (u == t) return flow;
 
@@ -62,10 +58,8 @@ public:
         }
         return 0;
     }
-
     FlowType DinicMaxflow(int s, int t) {
         if (s == t) return -1;
-
         FlowType total = 0;
         while (BFS(s, t)) {
             vector<int> start(V);
@@ -75,7 +69,6 @@ public:
         return total;
     }
 };
-
 int main() {
     ios_base::sync_with_stdio(false); cin.tie(nullptr);
     int N, M; cin >> N >> M;
