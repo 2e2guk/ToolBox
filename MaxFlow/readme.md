@@ -1,9 +1,9 @@
 # 최대 유량 알고리즘 정리
-1. ford-fulkerson
-2. edmonds-karp
+1. Ford-fulkerson
+2. Edmonds-karp
 3. Dinic
-4. push-relabel
-5. 
+4. Push-Relabel(naive)
+5. Push-Relabel(FIFO queue opt)
 
 # 실행속도 비교
 문제 : https://www.acmicpc.net/problem/12936
