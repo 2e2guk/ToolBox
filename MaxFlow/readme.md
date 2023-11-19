@@ -8,3 +8,5 @@
 # 실행속도 비교
 문제 : https://www.acmicpc.net/problem/12936
 1. Dinic : 11576kb, 72ms
+2. naive Push-Relabel : 4% TLE
+3. FIFO queue + Push-Realbel : 
