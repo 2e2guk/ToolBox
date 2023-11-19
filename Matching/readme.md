@@ -7,6 +7,8 @@
 # 성능 테스트 #
 Hopcroft-Karp vs Dinic -> 애초에 hopcroft-karp가, 이분 그래프에서 dinic을 적용한 것이고, 시간 복잡도도 O(V^2E)(Dinic) -> O(sqrt(V)*E)(Hopcroft-Karp) 가 되어서, 
 "이분 그래프" 로 제한하면, Hopcroft-karp가 Dinic 보다 빨라야 한다. 
+
+
 문제 : https://www.acmicpc.net/problem/11376 에 대해,
 1.Hopcroft-Karp = 10084kb, 132ms
 2.Dinic = 34468kb, 156ms 
