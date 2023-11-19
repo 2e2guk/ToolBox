@@ -93,6 +93,6 @@ int main() {
             g.addEdge(j, N + i, c);
         }
     }
-    cout << g.DinicMaxflow(s, t);
+    cout << g.Maxflow(s, t);
     return 0;
 }
