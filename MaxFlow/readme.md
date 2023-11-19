@@ -9,4 +9,4 @@
 문제 : https://www.acmicpc.net/problem/12936
 1. Dinic : 11576kb, 72ms
 2. naive Push-Relabel : 4% TLE
-3. FIFO queue + Push-Realbel : 
+3. FIFO queue + Push-Realbel : 14908kb, 104ms
