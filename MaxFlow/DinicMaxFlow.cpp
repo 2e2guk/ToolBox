@@ -1,5 +1,5 @@
 // Dicic's Maxflow algorithm
-// O(V^2E) <- Worst Case에서의 시간 복잡도. 실제로는 이거보다 훨씬 빨리 작동함
+// O(V^2E) 
 // main 함수 예시는 boj 11406
 #include <bits/stdc++.h>
 using namespace std;
@@ -62,7 +62,7 @@ public:
         }
         return 0;
     }
-    FlowType DinicMaxflow(int s, int t) {
+    FlowType Maxflow(int s, int t) {
         if (s == t) return -1;
         FlowType total = 0;
         while (BFS(s, t)) {
