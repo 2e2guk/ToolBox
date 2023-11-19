@@ -60,7 +60,7 @@ public:
     void addEdge(int l, int r) {
         gph[l].push_back(r);
     }
-
+    // n에 들어가는 것은, 왼쪽 정점 집합 L의 크기이다. 
     MatchType match(int n) {
         MatchType ret = 0;
         while(bfs(n)) {
@@ -83,6 +83,7 @@ int main() {
             hk.addEdge(i + N, k);
         }
     }
+    // 여기엔, 왼쪽 집합의 정점의 크기이다.  
     cout << hk.match(2 * N);
     return 0;
 }
