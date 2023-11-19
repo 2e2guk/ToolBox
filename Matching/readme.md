@@ -10,6 +10,8 @@ Hopcroft-Karp vs Dinic -> 애초에 hopcroft-karp가, 이분 그래프에서 din
 
 
 문제 : https://www.acmicpc.net/problem/11376 에 대해,
+
 1.Hopcroft-Karp = 10084kb, 132ms
 2.Dinic = 34468kb, 156ms 
+
 의 결과를 보여줬고, 고로, Hopcroft-karp의 구현이 타당함을 알수 있다.(근데 그럴수밖에 없다. 왜? 난 이거 구사과님 블로그로 배웠으니까.. 구현도 구사과님 구현과 매우 유사하다)
