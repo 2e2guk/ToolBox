@@ -42,7 +42,7 @@ private:
 };
 
 // F_merge -> 자료형 적절히 수정
-struct sum {
+struct F_merge {
 	ll operator() (const ll& a, const ll& b) const {
 		return a + b;
 	}
@@ -50,7 +50,7 @@ struct sum {
 int main() {
     ios_base::sync_with_stdio(false); cin.tie(nullptr);
 	int n, m, k; cin >> n >> m >> k;
-	SegTree<ll, sum> ST(n, 0);
+	SegTree<ll, F_merge> ST(n, 0);
 	for (int i = 1; i <= n; i++) {
 		ll t; cin >> t;
 		ST.Set(i, t);
