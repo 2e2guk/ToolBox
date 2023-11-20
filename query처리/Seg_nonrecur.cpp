@@ -3,7 +3,7 @@
 /*
 구현 코드를 사용하려면 문제 별로 적절히 NodeType, F_Merge를 구현해야 합니다.
 1. NodeType = node의 자료형 
-2. F_Merge는 결합법칙을 만족하고 항등원이 존재해야 합니다. 구간 합 구하기를 예로 들면 F_Merge(a, b)를 a + b를 반환하도록 정의하면 결합법칙을 만족하고, 항등원은 0이 됩니다.
+2. F_Merge는 쿼리 함수. 결합법칙을 만족하고 항등원이 존재해야 합니다. 구간 합 구하기를 예로 들면 F_Merge(a, b)를 a + b를 반환하도록 정의하면 결합법칙을 만족하고, 항등원은 0이 됩니다.
 */
 // https://www.acmicpc.net/blog/view/117 참고
 // main 함수 사용 예시는 boj 2042 
@@ -41,8 +41,8 @@ private:
 	}
 };
 
-// 자료형 적절히 수정
-struct F_Merge {
+// F_merge -> 자료형 적절히 수정
+struct sum {
 	ll operator() (const ll& a, const ll& b) const {
 		return a + b;
 	}
@@ -50,7 +50,7 @@ struct F_Merge {
 int main() {
     ios_base::sync_with_stdio(false); cin.tie(nullptr);
 	int n, m, k; cin >> n >> m >> k;
-	SegTree<ll, F_Merge> ST(n, 0);
+	SegTree<ll, sum> ST(n, 0);
 	for (int i = 1; i <= n; i++) {
 		ll t; cin >> t;
 		ST.Set(i, t);
