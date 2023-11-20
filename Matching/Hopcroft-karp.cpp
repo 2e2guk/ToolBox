@@ -83,7 +83,6 @@ int main() {
             hk.addEdge(i + N, k);
         }
     }
-    // 여기엔, 왼쪽 집합의 정점의 크기이다.  
     cout << hk.match(2 * N);
     return 0;
 }
