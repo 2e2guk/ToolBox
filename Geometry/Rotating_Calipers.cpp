@@ -1,7 +1,7 @@
 // Roating Calipers(회전하는 캘리퍼스)
-// 점 집합들에서, 가장 먼 두 점을 구한다. <- 점 집합에서 가장 먼 두 점은, convex hull 위에 있다. 
+// 점 집합들에서, 가장 먼 두 점을 구한다. -> 점 집합에서 가장 먼 점은, convex hull 위에 있다. 
 // O(N)
-// main 함수 사용 예시는 boj 10254
+// main 함수 사용 예시는 boj 2049
 #include <bits/stdc++.h>
 using namespace std;
 typedef long long ll;
@@ -57,16 +57,27 @@ pair<Point<PointType>, Point<PointType>> Calipers(vector<Point<PointType>> hull)
     }
     return {a, b};
 }
-
 int main() {
     ios_base::sync_with_stdio(false); cin.tie(nullptr);
-    int tc; cin >> tc;
-    while(tc--) {
-        int N; cin >> N;
-        vector<Point<ll>> points(N, Point<ll>());
-        for(int i = 0; i < N; i++) cin >> points[i].x >> points[i].y;
-        pair<Point<ll>, Point<ll>> ans = Calipers(ConvexHull(points));
-        cout << ans.first.x << " " << ans.first.y << " " << ans.second.x << " " << ans.second.y << "\n";
+    int N; cin >> N;
+    vector<Point<ll>> points(N, Point<ll>());
+    for(int i = 0; i < N; i++) cin >> points[i].x >> points[i].y;
+
+    // 모든 점이 동일한지 확인
+    bool all_same = true;
+    for (int i = 1; i < N; i++) {
+        if (points[i].x != points[0].x || points[i].y != points[0].y) {
+            all_same = false;
+            break;
+        }
     }
+    // 모든 점이 동일한 경우, 거리는 0 -> 문제에서 동일한 점이 중복해서 주어질수도 있다고 하니, 잘 처리해야 한다. 
+    if (all_same) {
+        cout << "0\n";
+        return 0;
+    }
+    // 그렇지 않은 경우, 볼록 껍질과 회전하는 캘리퍼스 알고리즘 적용
+    pair<Point<ll>, Point<ll>> ans = Calipers(ConvexHull(points));
+    cout << Point<ll>::Dist(ans.first, ans.second) << "\n";
     return 0;
 }
