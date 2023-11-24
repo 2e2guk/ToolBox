@@ -1,5 +1,5 @@
 // dp optimization
-// convex hull trick, O(N)
+// convex hull trick, O(N logN)
 // main 함수 사용 예시는 boj 13263
 #include <bits/stdc++.h>
 using namespace std;
