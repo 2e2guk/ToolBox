@@ -1,4 +1,4 @@
-// Dicic's Maxflow algorithm
+// Dinic's Maxflow algorithm
 // O(V^2E) 
 // main 함수 예시는 boj 11406
 #include <bits/stdc++.h>
