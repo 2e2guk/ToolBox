@@ -72,6 +72,15 @@ public:
         }
         return total;
     }
+    tuple<FlowType, vector<int>, vector<int>, vector<pair<int, int>>> getMincut(int s, int t) {
+        FlowType maxflow = Maxflow(s, t);
+        vector<int> S, T;
+        vector<pair<int, int>> saturated_edges;
+        BFS(s, t);
+        for(int i = 0; i < V; i++) (level[i] != -1 ? S : T).push_back(i);
+        for(auto i : S) for(auto e : adj[i]) if(e.C != 0 && level[e.v] == -1) saturated_edges.emplace_back(i, e.v);
+        return {maxflow, S, T, saturated_edges};
+    }
 };
 int main() {
     ios_base::sync_with_stdio(false); cin.tie(nullptr);
@@ -93,6 +102,16 @@ int main() {
             g.addEdge(j, N + i, c);
         }
     }
-    cout << g.Maxflow(s, t);
+    // 최소 컷 계산
+    auto [maxflow, S, T, saturated_edges] = g.getMincut(s, t);
+    // 결과 출력
+    cout << "Maxflow: " << maxflow << "\n";
+    cout << "S: ";
+    for (auto v : S) cout << v << " ";
+    cout << "\nT: ";
+    for (auto v : T) cout << v << " ";
+    cout << "\nSaturated Edges: ";
+    for (auto &[u, v] : saturated_edges) cout << "(" << u << ", " << v << ") ";
+    cout << "\n";
     return 0;
 }
