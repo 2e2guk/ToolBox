@@ -5,7 +5,7 @@
 4. merge sort tree
 5. HLD
 6. centriod decomposition
-7. 
+7. sqrt decomposition
 
 # Query 처리#
 앵간하면 fenwick으로 하자. 이거 쓰면 seg, lazyseg 이런거 필요 없음 
