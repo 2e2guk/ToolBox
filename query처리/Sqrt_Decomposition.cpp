@@ -17,6 +17,7 @@ struct SqrtDecomposition {
         for(ll i = 0; i < n; i++){
             buckets[i / sq].push_back(arr[i]);
         }
+		// 이 부분은, 문제에 따라서 추가한 부분이다. 
         for(ll i = 0; i < buckets.size(); i++) { // buckets.size()를 사용
             sort(buckets[i].begin(), buckets[i].end());
         }
