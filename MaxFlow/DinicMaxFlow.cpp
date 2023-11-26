@@ -102,6 +102,8 @@ int main() {
             g.addEdge(j, N + i, c);
         }
     }
+    cout << g.Maxflow(s, t) << "\n";
+    cout << "Additional implementation" << "\n";
     // 최소 컷 계산
     auto [maxflow, S, T, saturated_edges] = g.getMincut(s, t);
     // 결과 출력
