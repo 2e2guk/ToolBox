@@ -1,5 +1,6 @@
 // 오일러 피 함수(naive)
 // O(sqrt(N))
+// main 함수 사용 예시는 boj 11689 
 #include <bits/stdc++.h>
 using namespace std;
 
