@@ -1,4 +1,5 @@
 // Fast Fourier Transform(FFT, 고속 푸리에 변환)
+// Cooley-Tukey Algorithm
 // O(N log N)
 // main 함수 사용예시는 boj 1067
 #include <bits/stdc++.h>
