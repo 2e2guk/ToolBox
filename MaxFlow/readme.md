@@ -1,7 +1,7 @@
 # 최대 유량 알고리즘 정리
 1. Ford-fulkerson
 2. Edmonds-karp
-3. Dinic -> 최소 컷, 포화된 간선들 구하는 함수들까지 포함. 
+3. Dinic -> 최소 컷, 포화된 간선들 구하는 함수들까지 포함. (<-boj 25365 test. AC)
 4. Push-Relabel(naive)
 5. Push-Relabel(FIFO queue opt)
 
