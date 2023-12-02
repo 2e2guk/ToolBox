@@ -1,7 +1,8 @@
 # (계산)기하 알고리즘 #
 1. convex hull + CCW -> Graham's Scan
 2. Rotating Calipers -> 점 집합에서 가장 먼 두 점은, convex hull 위에 있다.
-3. PolygonArea - 다각형 면적 구하기. kahan's sumation 적용해 정밀도 향상. 
+3. PolygonArea - 다각형 면적 구하기. kahan's sumation 적용해 정밀도 향상.
+4. Point in Convex Polygon - 볼록다각형 내의 점 판정.
 
 
 
