@@ -1,4 +1,6 @@
 // boj 9875 Cow Curling
+// 60번째 줄에 정의된 함수를 보자. 
+// 볼록 다각형 위에 점이 있는가? -> convexhull이 일직선인 경우 -> 그 선분 위에 있으면 볼록다각형 내부에 점이 있는 거다.
 #include <bits/stdc++.h>
 using namespace std;
 typedef long long ll;
