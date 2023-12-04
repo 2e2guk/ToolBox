@@ -6,7 +6,7 @@
 5. PointOnLineSegment - 선분 위에 점이 있는지 확인.
 6. Point in polygon - 일반적인 다각형 내의 점 판정
 7. Shamos-Hoey - N개의 선분이 주어졌을 때, 이 선분들이 서로 교차하는지 아닌지를 판별.
-8. segment intersect - 선분 교차 판정
+8. segment intersect - 선분 교차 판정 - Shamos-Hoey.cpp 코드 내에 존재. 
 9. segment distance - 선분 사이의 최단 거리
 10. Half Plane Intersection(반평면 교집합)
 11. tangent of convex hull(볼록다각형 외부의 한 점에서 볼록다각형으로 그린 접선)
