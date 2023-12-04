@@ -9,7 +9,8 @@
 8. segment intersect - 선분 교차 판정 - Shamos-Hoey.cpp 코드 내에 존재. 
 9. segment distance - 선분 사이의 최단 거리
 10. Half Plane Intersection(반평면 교집합)
-11. tangent of convex hull(볼록다각형 외부의 한 점에서 볼록다각형으로 그린 접선)
+11. Convex Polygon Inscribed Circle - 볼록 다각형의 내접원의 정보들을 구한다. 내접원의 반지름, 내접원 중심의 점좌표.
+12. tangent of convex hull(볼록다각형 외부의 한 점에서 볼록다각형으로 그린 접선)
     
 
 
