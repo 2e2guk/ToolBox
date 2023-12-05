@@ -10,3 +10,4 @@
 1. Dinic : 11576kb, 72ms
 2. naive Push-Relabel : 4% TLE
 3. FIFO queue + Push-Realabel : 14908kb, 104ms
+4. MPM : 4% TLE
