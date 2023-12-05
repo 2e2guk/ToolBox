@@ -12,35 +12,31 @@ public:
         int to, rev;
         FlowType flow, cap;
     };
+
     int n;
     vector<vector<Edge>> graph;
-    vector<vector<FlowType>> capacity, flow;
     vector<int> height, excess;
-    HLPP(int n) : n(n), graph(n), height(n), excess(n) {
-        capacity.resize(n, vector<FlowType>(n, 0));
-        flow.resize(n, vector<FlowType>(n, 0));
-    }
+
+    HLPP(int n) : n(n), graph(n), height(n), excess(n) {}
 
     void addEdge(int from, int to, FlowType cap) {
         graph[from].push_back({to, int(graph[to].size()), 0, cap});
         graph[to].push_back({from, int(graph[from].size()) - 1, 0, 0});
-        capacity[from][to] = cap;
     }
 
-
-    void push(int u, int v) {
-        FlowType d = min(excess[u], capacity[u][v] - flow[u][v]);
-        flow[u][v] += d;
-        flow[v][u] -= d;
+    void push(Edge &e, int u, int v) {
+        FlowType d = min(excess[u], e.cap - e.flow);
+        e.flow += d;
+        graph[v][e.rev].flow -= d;
         excess[u] -= d;
         excess[v] += d;
     }
 
     void relabel(int u) {
         FlowType d = numeric_limits<FlowType>::max();
-        for (int i = 0; i < n; i++) {
-            if (capacity[u][i] - flow[u][i] > 0)
-                d = min(d, height[i]);
+        for (auto& e : graph[u]) {
+            if (e.cap - e.flow > 0)
+                d = min(d, height[e.to]);
         }
         if (d < numeric_limits<FlowType>::max()) height[u] = d + 1;
     }
@@ -61,22 +57,21 @@ public:
     FlowType Maxflow(int s, int t) {
         height.assign(n, 0);
         height[s] = n;
-        flow.assign(n, vector<int>(n, 0));
         excess.assign(n, 0);
         excess[s] = numeric_limits<FlowType>::max();
-        for (int i = 0; i < n; i++) {
-            if (i != s)
-                push(s, i);
+        for (auto &e : graph[s]) {
+            push(e, s, e.to);
         }
 
         vector<int> current;
         while (!(current = find_max_height_vertices(s, t)).empty()) {
             for (int i : current) {
                 bool pushed = false;
-                for (int j = 0; j < n && excess[i]; j++) {
-                    if (capacity[i][j] - flow[i][j] > 0 && height[i] == height[j] + 1) {
-                        push(i, j);
+                for (auto &e : graph[i]) {
+                    if (excess[i] && e.cap - e.flow > 0 && height[i] == height[e.to] + 1) {
+                        push(e, i, e.to);
                         pushed = true;
+                        if (excess[i] == 0) break;
                     }
                 }
                 if (!pushed) {
@@ -87,8 +82,8 @@ public:
         }
 
         FlowType max_flow = 0;
-        for (int i = 0; i < n; i++)
-            max_flow += flow[i][t];
+        for (auto &e : graph[s])
+            max_flow += e.flow;
         return max_flow;
     }
 };
