@@ -13,7 +13,7 @@
 2. naive Push-Relabel : 4% TLE
 3. FIFO queue + Push-Realabel : 14908kb, 104ms
 4. MPM : 4% TLE
-5. HLPP + Push-Ralbel : MLE
+5. HLPP + Push-Ralbel : 4% TLE
 
 # WorkFlow #
-1. MPM, HLPP -> 각각 12936 문제에서 TLE, MLE를 받았기에, 코드를 좀 더 만져야 한다. 
+1. (231205) MPM, HLPP -> 각각 12936 문제에서 TLE, MLE를 받았기에, 코드를 좀 더 만져야 한다. -> HLPP가, capacity, flow배열을 유지하기에 MLE 발생, 그래서 Edge 구조체에서 직접 용량, 유량을 관리하도록 변경. 4% TLE. 
