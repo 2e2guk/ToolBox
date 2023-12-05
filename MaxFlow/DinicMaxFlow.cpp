@@ -8,7 +8,7 @@ template<typename FlowType>
 class Dinic {
     struct Edge {
         int v, rev;
-        FlowType flow, C;
+        FlowType flow, cap;
     };
     int V;
     vector<int> level;
@@ -17,8 +17,8 @@ class Dinic {
 public:
     Dinic(int V) : V(V), adj(V), level(V) {}
 
-    void addEdge(int u, int v, FlowType C) {
-        Edge a{v, int(adj[v].size()), 0, C};
+    void addEdge(int u, int v, FlowType cap) {
+        Edge a{v, int(adj[v].size()), 0, cap};
         Edge b{u, int(adj[u].size()), 0, 0};
         adj[u].push_back(a);
         adj[v].push_back(b);
@@ -36,7 +36,7 @@ public:
             int u = q.front();
             q.pop();
             for (Edge &e : adj[u]) {
-                if (level[e.v] < 0 && e.flow < e.C) {
+                if (level[e.v] < 0 && e.flow < e.cap) {
                     level[e.v] = level[u] + 1;
                     q.push(e.v);
                 }
@@ -49,8 +49,8 @@ public:
 
         for (; start[u] < adj[u].size(); start[u]++) {
             Edge &e = adj[u][start[u]];
-            if (level[e.v] == level[u] + 1 && e.flow < e.C) {
-                FlowType curr_flow = min(flow, e.C - e.flow);
+            if (level[e.v] == level[u] + 1 && e.flow < e.cap) {
+                FlowType curr_flow = min(flow, e.cap - e.flow);
                 FlowType temp_flow = DFS(e.v, curr_flow, t, start);
 
                 if (temp_flow > 0) {
