@@ -3,9 +3,10 @@
 // main 함수 예시는 boj 11406
 #include <bits/stdc++.h>
 using namespace std;
+typedef long long ll;
 
 template<typename FlowType>
-class Dinic {
+struct Dinic {
     struct Edge {
         int v, rev;
         FlowType flow, cap;
@@ -13,8 +14,6 @@ class Dinic {
     int V;
     vector<int> level;
     vector<vector<Edge>> adj;
-
-public:
     Dinic(int V) : V(V), adj(V), level(V) {}
 
     void addEdge(int u, int v, FlowType cap) {
@@ -78,7 +77,7 @@ public:
         vector<pair<int, int>> saturated_edges;
         BFS(s, t);
         for(int i = 0; i < V; i++) (level[i] != -1 ? S : T).push_back(i);
-        for(auto i : S) for(auto e : adj[i]) if(e.C != 0 && level[e.v] == -1) saturated_edges.emplace_back(i, e.v);
+        for(auto i : S) for(auto e : adj[i]) if(e.cap != 0 && level[e.v] == -1) saturated_edges.emplace_back(i, e.v);
         return {maxflow, S, T, saturated_edges};
     }
 };
