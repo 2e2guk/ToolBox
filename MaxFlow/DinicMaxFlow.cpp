@@ -26,7 +26,7 @@ struct Dinic {
         for(int i = 0; i < V; i++) adj[i].clear();
         fill(level.begin(), level.end(), 0);
     }
-    bool BFS(int s, int t) {
+    bool BFS_level_graph(int s, int t) {
         fill(level.begin(), level.end(), -1);
         level[s] = 0;
         queue<int> q;
@@ -43,7 +43,7 @@ struct Dinic {
         }
         return level[t] >= 0;
     }
-    FlowType DFS(int u, FlowType flow, int t, vector<int> &start) {
+    FlowType DFS_blocking_flow(int u, FlowType flow, int t, vector<int> &start) {
         if (u == t) return flow;
 
         for (; start[u] < adj[u].size(); start[u]++) {
@@ -64,9 +64,9 @@ struct Dinic {
     FlowType Maxflow(int s, int t) {
         if (s == t) return -1;
         FlowType total = 0;
-        while (BFS(s, t)) {
+        while (BFS_level_graph(s, t)) {
             vector<int> start(V);
-            while (FlowType flow = DFS(s, numeric_limits<FlowType>::max(), t, start))
+            while (FlowType flow = DFS_blocking_flow(s, numeric_limits<FlowType>::max(), t, start))
                 total += flow;
         }
         return total;
@@ -75,7 +75,7 @@ struct Dinic {
         FlowType maxflow = Maxflow(s, t);
         vector<int> S, T;
         vector<pair<int, int>> saturated_edges;
-        BFS(s, t);
+        BFS_level_graph(s, t);
         for(int i = 0; i < V; i++) (level[i] != -1 ? S : T).push_back(i);
         for(auto i : S) for(auto e : adj[i]) if(e.cap != 0 && level[e.v] == -1) saturated_edges.emplace_back(i, e.v);
         return {maxflow, S, T, saturated_edges};
