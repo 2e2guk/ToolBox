@@ -50,7 +50,7 @@ struct Dinic {
             Edge &e = adj[u][start[u]];
             if (level[e.v] == level[u] + 1 && e.flow < e.cap) {
                 FlowType curr_flow = min(flow, e.cap - e.flow);
-                FlowType temp_flow = DFS(e.v, curr_flow, t, start);
+                FlowType temp_flow = DFS_blocking_flow(e.v, curr_flow, t, start);
 
                 if (temp_flow > 0) {
                     e.flow += temp_flow;
