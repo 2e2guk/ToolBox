@@ -11,21 +11,22 @@ struct Dinic {
         int v, rev;
         FlowType flow, cap;
     };
+
     int V;
     vector<int> level;
     vector<vector<Edge>> adj;
+    map<pair<int, int>, int> edgeIndexMap;
+
     Dinic(int V) : V(V), adj(V), level(V) {}
 
     void addEdge(int u, int v, FlowType cap) {
-        Edge a{v, int(adj[v].size()), 0, cap};
-        Edge b{u, int(adj[u].size()), 0, 0};
-        adj[u].push_back(a);
-        adj[v].push_back(b);
+        edgeIndexMap[{u, v}] = adj[u].size();
+        Edge forward = {v, (int)adj[v].size(), 0, cap};
+        Edge reverse = {u, (int)adj[u].size(), 0, 0};
+        adj[u].push_back(forward);
+        adj[v].push_back(reverse);
     }
-    void clear() {
-        for(int i = 0; i < V; i++) adj[i].clear();
-        fill(level.begin(), level.end(), 0);
-    }
+
     bool BFS_level_graph(int s, int t) {
         fill(level.begin(), level.end(), -1);
         level[s] = 0;
@@ -43,6 +44,7 @@ struct Dinic {
         }
         return level[t] >= 0;
     }
+
     FlowType DFS_blocking_flow(int u, FlowType flow, int t, vector<int> &start) {
         if (u == t) return flow;
 
@@ -61,24 +63,29 @@ struct Dinic {
         }
         return 0;
     }
+
     FlowType Maxflow(int s, int t) {
-        if (s == t) return -1;
         FlowType total = 0;
         while (BFS_level_graph(s, t)) {
             vector<int> start(V);
-            while (FlowType flow = DFS_blocking_flow(s, numeric_limits<FlowType>::max(), t, start))
+            while (FlowType flow = DFS_blocking_flow(s, numeric_limits<FlowType>::max(), t, start)) {
                 total += flow;
+            }
         }
         return total;
     }
-    tuple<FlowType, vector<int>, vector<int>, vector<pair<int, int>>> getMincut(int s, int t) {
-        FlowType maxflow = Maxflow(s, t);
-        vector<int> S, T;
-        vector<pair<int, int>> saturated_edges;
-        BFS_level_graph(s, t);
-        for(int i = 0; i < V; i++) (level[i] != -1 ? S : T).push_back(i);
-        for(auto i : S) for(auto e : adj[i]) if(e.cap != 0 && level[e.v] == -1) saturated_edges.emplace_back(i, e.v);
-        return {maxflow, S, T, saturated_edges};
+
+    FlowType getFlow(int u, int v) {
+        auto it = edgeIndexMap.find({u, v});
+        if (it != edgeIndexMap.end()) {
+            return adj[u][it->second].flow;
+        }
+        return -1;
+    }
+
+    void clear() {
+        for(int i = 0; i < V; i++) adj[i].clear();
+        fill(level.begin(), level.end(), 0);
     }
 };
 int main() {
@@ -102,6 +109,7 @@ int main() {
         }
     }
     cout << g.Maxflow(s, t) << "\n";
+    g.printFlow();
     cout << "Additional implementation" << "\n";
     // 최소 컷 계산
     auto [maxflow, S, T, saturated_edges] = g.getMincut(s, t);
@@ -116,3 +124,25 @@ int main() {
     cout << "\n";
     return 0;
 }
+/*
+// FlowType getFlow 사용 예시
+int main() {
+    ios_base::sync_with_stdio(false); cin.tie(nullptr);
+    int N, M; cin >> N >> M;
+
+    Dinic<int> g(N + 2);
+    vector<int> U, V;
+    int src = 0, sink = N + 1;
+    for(int i = 0; i < M; i++) {
+        int u, v, cap; cin >> u >> v >> cap;
+        U.push_back(u), V.push_back(v);
+        g.addEdge(u, v, cap);
+    }
+    cout << "maxFlow : " << g.Maxflow(src, sink) << "\n";
+    for(int i = 0; i < M; i++) {
+        cout << g.getFlow(U[i], V[i]) << "\n";
+    }
+
+    return 0;
+}
+*/
