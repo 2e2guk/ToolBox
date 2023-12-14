@@ -80,7 +80,7 @@ struct Dinic {
         if (it != edgeIndexMap.end()) {
             return adj[u][it->second].flow;
         }
-        return -1;
+        return (FlowType)0;
     }
 
     void clear() {
