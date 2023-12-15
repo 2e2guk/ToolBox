@@ -1,7 +1,7 @@
 사용 알고리즘 : Dinic, circulation with demands and lower bounds(LR flow)
 
-AC : 120ms, 6192KB
 문제 링크 : https://www.acmicpc.net/problem/25927
+AC : 120ms, 6192KB
 
 일단,, 이 문제 해결을 위해 약 2~3일은 쓴 것 같다. 
 일단, 문제를 간단히 요약해 보겠다. 기존 maxflow문제처럼, 간선에 용량이 주어진다. 그런데 추가적인 제약 조건인, parity constraint가 존재하는데, 설명은 수식이 들어가 어렵지만, 정리하면 다음과 같다. 
