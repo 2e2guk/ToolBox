@@ -1,6 +1,7 @@
 사용 알고리즘 : Dinic, circulation with demands and lower bounds(LR flow)
 
 문제 링크 : https://www.acmicpc.net/problem/25927
+
 AC : 120ms, 6192KB
 
 일단,, 이 문제 해결을 위해 약 2~3일은 쓴 것 같다. 
