@@ -11,7 +11,9 @@ AC : 120ms, 6192KB
 2. p[i] = 1인 간선 (u[i], v[i]) = 이 간선에는 홀수 유량이 흘러야 한다. 이후의 설명에서 이걸 odd edge라고 부르겠다. <- odd constraint
 
 그리고, 주어진 parity coinstraint를 만족시키는, 최대 유량을 찾는 문제이다. 
-일단, 처음에는, 예제 입력들의 flow network를 모델링하고, 유량을 추적하다가, 혹시 이거 odd edge로만 혹은 even edge로만 이루어진 증가 경로를 통해서 유량을 증가시킬 수 있는게 아닐까? 라고 생각했었다. 머지 않아 그 생각은 잘못된 것임을 깨달았는데, odd + odd = even 이므로, even edge로만 증가 경로가 구성되다가, odd edge 2개로 쪼개져도 된다는 뜻이므로, 처음의 나의 생각이 틀렸다는 것을 알 수 있었다. 
+일단, 처음에는, 예제 입력들의 flow network를 모델링하고, 유량을 추적하다가, 혹시 이거 odd edge로만 혹은 even edge로만 이루어진 증가 경로를 통해서 유량을 증가시킬 수 있는게 아닐까? 라고 생각했었다. 
+
+머지 않아 그 생각은 잘못된 것임을 깨달았는데, odd + odd = even 이므로, even edge로만 증가 경로가 구성되다가, odd edge 2개로 쪼개져도 된다는 뜻이므로, 처음의 나의 생각이 틀렸다는 것을 알 수 있었다. 
 
 그런데, 이 아이디에 착안해 힌트를 얻었는데, 간단한 circulation 모델링의 예를 들어 보자. 
 
@@ -28,6 +30,7 @@ odd constraint를 처리하는 것은, "홀수"의 유량이 흘러야 하므로
 
 여튼, 이렇게 모델링하고, 나머지는 그냥 circulation with edge demands and lower bounds 문제에서, 최대 유량을 찾는 과정을 하면 된다. 
 주의할 점은, 만약 feasible한 flow가 흐르면, odd edge에는 1의 유량이 다 흐르고 있는 것이므로, odd edge의 유량에는, 1을 더해 줘야 한다. 우리는 그래프의 모든 간선을 even edge로 바꿨으므로, 간선에 흐르는 유량을 조회해 보면 짝수만 나온다. 
+
 
 정답 코드는 120ms에 AC를 받는다. 14회의 제출기록,,, 진짜 인간승리다. 
 https://www.acmicpc.net/status?from_mine=1&problem_id=25927&user_id=dlrkddnr2718
