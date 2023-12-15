@@ -1,7 +1,7 @@
 # 최대 유량 알고리즘 정리
 1. Ford-fulkerson
 2. Edmonds-karp
-3. Dinic -> 최소 컷, 포화된 간선들 구하는 함수들까지 포함. (<-boj 25365 test. AC)
+3. Dinic Maxflow
 4. Push-Relabel(naive)
 5. Push-Relabel(FIFO queue opt)
 6. Push-Relabel(HLPP opt)
@@ -18,6 +18,7 @@
 5. HLPP + Push-Ralbel : 4% TLE
 
 # WorkFlow #
+0. (??) : Dinic -> 최소 컷, 포화된 간선들 구하는 함수들까지 포함. (<-boj 25365 test. AC)
 1. (231205) MPM, HLPP -> 각각 12936 문제에서 TLE, MLE를 받았기에, 코드를 좀 더 만져야 한다. -> HLPP가, capacity, flow배열을 유지하기에 MLE 발생, 그래서 Edge 구조체에서 직접 용량, 유량을 관리하도록 변경. 4% TLE.
 2. (231211) Circulation + LR maxflow 코드 작성중... main함수 작성하고 테스트하는거만 남았다.
 3. (231212) Dinic 각 간선별로 흐르는 유량 출력부분 작성중... 일단 내가 만든 TC는 통과, 문제로 테스트해 볼 수 있으면 좋을 터인디.. -> vscode 0codetester.cpp 에서 작업중.
