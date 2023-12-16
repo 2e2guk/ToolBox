@@ -1,4 +1,5 @@
 // Shamos-hoey 알고리즘
+// main함수 사용 예시는 boj 20150
 #include <bits/stdc++.h>
 using namespace std;
 
