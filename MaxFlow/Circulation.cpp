@@ -1,6 +1,5 @@
+// boj 25297 Parity Constraint Maximum Flow
 // circulation
-// 
-// main 함수 사용 예시는 boj 20135
 #include <bits/stdc++.h>
 using namespace std;
 typedef long long ll;
@@ -11,21 +10,22 @@ struct Dinic {
         int v, rev;
         FlowType flow, cap;
     };
+
     int V;
     vector<int> level;
     vector<vector<Edge>> adj;
+    map<pair<int, int>, int> edgeIndexMap;
+
     Dinic(int V) : V(V), adj(V), level(V) {}
 
     void addEdge(int u, int v, FlowType cap) {
-        Edge a{v, int(adj[v].size()), 0, cap};
-        Edge b{u, int(adj[u].size()), 0, 0};
-        adj[u].push_back(a);
-        adj[v].push_back(b);
+        edgeIndexMap[{u, v}] = adj[u].size();
+        Edge forward = {v, (int)adj[v].size(), 0, cap};
+        Edge reverse = {u, (int)adj[u].size(), 0, 0};
+        adj[u].push_back(forward);
+        adj[v].push_back(reverse);
     }
-    void clear() {
-        for(int i = 0; i < V; i++) adj[i].clear();
-        fill(level.begin(), level.end(), 0);
-    }
+
     bool BFS_level_graph(int s, int t) {
         fill(level.begin(), level.end(), -1);
         level[s] = 0;
@@ -43,6 +43,7 @@ struct Dinic {
         }
         return level[t] >= 0;
     }
+
     FlowType DFS_blocking_flow(int u, FlowType flow, int t, vector<int> &start) {
         if (u == t) return flow;
 
@@ -61,66 +62,75 @@ struct Dinic {
         }
         return 0;
     }
+
     FlowType Maxflow(int s, int t) {
-        if (s == t) return -1;
         FlowType total = 0;
         while (BFS_level_graph(s, t)) {
             vector<int> start(V);
-            while (FlowType flow = DFS_blocking_flow(s, numeric_limits<FlowType>::max(), t, start))
+            while (FlowType flow = DFS_blocking_flow(s, numeric_limits<FlowType>::max(), t, start)) {
                 total += flow;
+            }
         }
         return total;
     }
-    tuple<FlowType, vector<int>, vector<int>, vector<pair<int, int>>> getMincut(int s, int t) {
-        FlowType maxflow = Maxflow(s, t);
-        vector<int> S, T;
-        vector<pair<int, int>> saturated_edges;
-        BFS_level_graph(s, t);
-        for(int i = 0; i < V; i++) (level[i] != -1 ? S : T).push_back(i);
-        for(auto i : S) for(auto e : adj[i]) if(e.cap != 0 && level[e.v] == -1) saturated_edges.emplace_back(i, e.v);
-        return {maxflow, S, T, saturated_edges};
+
+    FlowType getFlow(int u, int v) {
+        auto it = edgeIndexMap.find({u, v});
+        if (it != edgeIndexMap.end()) {
+            return adj[u][it->second].flow;
+        }
+        return (FlowType)0;
+    }
+
+    void clear() {
+        for(int i = 0; i < V; i++) adj[i].clear();
+        fill(level.begin(), level.end(), 0);
     }
 };
-template<typename FlowType>
-struct MaxFlowEdgeDemands {
-    Dinic<FlowType> dinic;
-    vector<FlowType> demand;
-    FlowType totalDemand;
-    int nodeCount;
-
-    MaxFlowEdgeDemands(int V) : dinic(V + 2), nodeCount(V), totalDemand(0), demand(V, 0) {}
-
-    void addEdgeWithDemand(int u, int v, FlowType capacity, FlowType lowerBound) {
-        dinic.addEdge(u, v, capacity - lowerBound);
-        demand[u] += lowerBound; // supply node
-        demand[v] -= lowerBound; // demand node
+int main() {
+    ios_base::sync_with_stdio(false); cin.tie(nullptr);
+    int N, M, s, t; cin >> N >> M >> s >> t;
+    Dinic<ll> dinic(N + 2); 
+    int ns = 0, nt = N + 1;
+    vector<ll> u(M + 1, 0), v(M + 1, 0), c(M + 1, 0), p(M + 1, 0);
+    vector<ll> demand(N + 1, 0);
+    ll D = 0;
+    for(int i = 1; i <= M; i++) {
+        cin >> u[i] >> v[i] >> c[i] >> p[i];
+        if(p[i] == 0) {
+            dinic.addEdge(u[i], v[i], (c[i] % 2) == 0 ? c[i] : c[i] - 1);
+        } else {
+            dinic.addEdge(u[i], v[i], (c[i] - 1) % 2 == 0 ? c[i] - 1 : c[i] - 2);
+            demand[u[i]]++;
+            demand[v[i]]--;
+        }
     }
-
-    int src = nodeCount, sink = nodeCount + 1;
-
-    bool isFeasible() {
-        for (int i = 0; i < nodeCount; ++i) {
-            if (demand[i] < 0) {
-                dinic.addEdge(src, i, -demand[i]);
-                totalDemand += demand[i];
-            } else if (demand[i] > 0) {
-                dinic.addEdge(i, sink, demand[i]);
+    for(int i = 1; i <= N; i++) {
+        if(demand[i] % 2 != 0) {
+            if(i == s || i == t) continue;
+            else {
+                cout << -1;
+                return 0;
             }
         }
-
-        // 기존의 싱크에서 소스로 가는 무한대 용량의 간선 추가
-        dinic.addEdge(sink, src, numeric_limits<FlowType>::max());
-
-        FlowType flow = dinic.Maxflow(src, sink);
-        return flow == totalDemand;
     }
-
-    FlowType solve() {
-        if (!isFeasible()) {
-            return -1; // No feasible solution exists.
+    for(int i = 1; i <= N; i++) {
+        if(demand[i] > 0) {
+            D += demand[i];
+            dinic.addEdge(i, nt, demand[i]);
+        } 
+        if(demand[i] < 0) dinic.addEdge(ns, i, -demand[i]);
+    }
+    dinic.addEdge(t, s, numeric_limits<ll>::max());
+    ll feasibleflow = dinic.Maxflow(ns, nt);
+    if(feasibleflow != D) cout << -1;
+    else {
+        ll maxflow = dinic.Maxflow(s, t);
+        cout << maxflow << "\n";
+        for(int i = 1; i <= M; i++) {
+            if(p[i] == 1) cout << dinic.getFlow(u[i], v[i]) + 1 << "\n";
+            else cout << dinic.getFlow(u[i], v[i]) << "\n";
         }
-
-        // 실제 소스와 싱크 간의 최대 유량 계산
-        return dinic.Maxflow(src, sink);
     }
-};
+    return 0;
+}
