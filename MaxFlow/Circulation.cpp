@@ -1,5 +1,5 @@
-// boj 25297 Parity Constraint Maximum Flow
 // circulation
+// main 함수 사용 예시는 boj 25297
 #include <bits/stdc++.h>
 using namespace std;
 typedef long long ll;
