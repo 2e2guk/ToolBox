@@ -2,3 +2,5 @@
 1. KMP -> O(S + P)
 2. Aho-Corasick -> O(S + sigma P)
 3. Rabin-Karp
+4. Z
+5. suffix array
