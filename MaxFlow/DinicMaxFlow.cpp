@@ -109,7 +109,6 @@ int main() {
         }
     }
     cout << g.Maxflow(s, t) << "\n";
-    g.printFlow();
     cout << "Additional implementation" << "\n";
     // 최소 컷 계산
     auto [maxflow, S, T, saturated_edges] = g.getMincut(s, t);
