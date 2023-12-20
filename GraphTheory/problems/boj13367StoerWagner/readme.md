@@ -1,4 +1,5 @@
 사용 알고리즘 : Stoer-Wagner Golbal Min-Cut
+
 AC : 784ms AC : https://www.acmicpc.net/status?from_mine=1&problem_id=13367&user_id=dlrkddnr2718
 
 문제는, 음 아닌 가중치가 부여된 undirected graph와, 간선을 끊는데 필요한 "effort"가 주어지는데, 이 effort가 간선에 부여된 가중치이다. 그러면, effort를 최소로, 그래프를 2개의 그룹으로 나누려면 어떻게 해야 하는가.. 이때 사용되는 것이 Stoer-Wagner 알고리즘(https://en.wikipedia.org/wiki/Stoer%E2%80%93Wagner_algorithm)이다.
