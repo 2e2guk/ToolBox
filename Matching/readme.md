@@ -5,7 +5,7 @@
 4. Hungarian(kuhn-munkres) <- 할당 문제
 
 # 알아두어야 할 것 #
-1. 이분 매칭을 구하는 hopcroft-karp 알고리즘은, Dinic's algorithm을 이분 그래프 환경으로 국한되게 만든 결과물이다.
+1. Hopcroft-Karp : 이분 매칭을 구하는 hopcroft-karp 알고리즘은, Dinic's algorithm을 이분 그래프 환경으로 국한되게 만든 결과물이다.
   이분 매칭 환경에서, 간선의 용량은 unit capacity이므로, hopcroft-karp 알고리즘의 시간 복잡도는 O(sqrt(V) E) 가 된다...
 
 
