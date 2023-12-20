@@ -1,5 +1,5 @@
 // 음 아닌 가중치가 부여된, undirected graph에서, global min cut을 구해냄
-// main함수 사용 예시는 boj 13367
+// main 함수 사용 예시는 boj 14060 Paths in Multigraph
 // Stoer-Wagner algorithm
 // O(V^3), 0-based index. addEdge 사용시 주의
 #include <bits/stdc++.h>
@@ -70,16 +70,13 @@ struct StoerWagner {
 
 int main() {
     ios_base::sync_with_stdio(false); cin.tie(nullptr);
-    int tc; cin >> tc;
-    while(tc--) {
-        int N, M; cin >> N >> M;
-        StoerWagner<int> mc(N);
-        for(int i = 0; i < M; i++) {
-            int u, v, w; cin >> u >> v >> w;
-            u--; v--;
-            mc.addEdge(u, v, w);
-        }
-        cout << mc.globalminCut() << "\n";
+    int N, M; cin >> N >> M;
+    StoerWagner<int> mc(N);
+    for(int i = 0; i < M; i++) {
+        int u, v; cin >> u >> v;
+        u--; v--;
+        mc.addEdge(u, v, 1);
     }
+    cout << mc.globalminCut() << "\n";
     return 0;
 }
