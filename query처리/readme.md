@@ -9,3 +9,6 @@
 
 # Query 처리 #
 앵간하면 fenwick으로 하자. 이거 쓰면 seg, lazyseg 이런거 필요 없음 
+
+# todo #
+(240102)fenwick 코드 수정. template<typename ValueType, typename IndexType> 두 개 이용하는 버전으로 수정. 
