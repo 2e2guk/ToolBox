@@ -28,6 +28,7 @@ struct Seg {
         return segmentTree[node] = makeSegmentTree(node * 2, start, mid) + makeSegmentTree(node * 2 + 1, mid + 1, end);
     }
 
+    // 인덱스 idx의 값을, diff만큼 업데이트한다. 
     void updateSegmentTree(IndexType node, IndexType start, IndexType end, IndexType idx, ValueType diff) {
         if (idx < start || idx > end) return;
         segmentTree[node] += diff;
