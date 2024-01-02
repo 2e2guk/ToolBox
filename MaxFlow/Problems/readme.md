@@ -1,4 +1,4 @@
-# 문제 List #
+# List #
 1. Kingdom Partition(D1, boj 25365) - ICPC > Regionals > Northern Eurasia > Northern Eurasia Finals > NERC 2021 K번
 
 link : https://www.acmicpc.net/problem/25365
