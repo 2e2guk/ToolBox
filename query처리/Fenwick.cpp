@@ -4,6 +4,7 @@
 // main 함수 사용 예시는 boj 10999
 #include <bits/stdc++.h>
 using namespace std;
+typedef long long ll;
 
 // 점 업데이트, 구간 쿼리
 template<typename T>    
