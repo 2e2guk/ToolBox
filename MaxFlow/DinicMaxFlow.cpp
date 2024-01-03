@@ -1,6 +1,6 @@
 // Dinic's Maxflow algorithm
 // O(V^2E) 
-// main 함수 예시는 boj 11406
+// main 함수 예시는 boj 11406 + Additional Implementation(민컷구하기 + 포화 간선 유량 구하기)
 #include <bits/stdc++.h>
 using namespace std;
 typedef long long ll;
