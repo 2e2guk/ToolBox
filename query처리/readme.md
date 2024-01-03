@@ -6,9 +6,13 @@
 5. HLD
 6. centriod decomposition
 7. sqrt decomposition
+8. Euler-Tour-Technique(ETT)
 
 # Query 처리 #
 앵간하면 fenwick으로 하자. 이거 쓰면 seg, lazyseg 이런거 필요 없음 
 
+# WorkFlow #
+(**240103**) ETT.cpp 템플릿화, 업로드
+
 # todo #
-(240102)fenwick 코드 수정할 필요가 있어보임. template<typename ValueType, typename IndexType> 두 개 이용하는 버전으로 수정. <- boj 2268fenw.cpp 에서 작업
+(**240102**)fenwick 코드 수정할 필요가 있어보임. template<typename ValueType, typename IndexType> 두 개 이용하는 버전으로 수정. <- boj 2268fenw.cpp 에서 작업
