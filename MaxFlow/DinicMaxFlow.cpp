@@ -75,12 +75,22 @@ struct Dinic {
         return total;
     }
 
+    tuple<FlowType, vector<int>, vector<int>, vector<pair<int, int>>> getMincut(int s, int t) {
+        FlowType maxflow = Maxflow(s, t);
+        vector<int> S, T;
+        vector<pair<int, int>> saturated_edges;
+        BFS_level_graph(s, t);
+        for(int i = 0; i < V; i++) (level[i] != -1 ? S : T).push_back(i);
+        for(auto i : S) for(auto e : adj[i]) if(e.cap != 0 && level[e.v] == -1) saturated_edges.emplace_back(i, e.v);
+        return {maxflow, S, T, saturated_edges};
+    }
+
     FlowType getFlow(int u, int v) {
         auto it = edgeIndexMap.find({u, v});
         if (it != edgeIndexMap.end()) {
             return adj[u][it->second].flow;
         }
-        return (FlowType)0;
+        return -1;
     }
 
     void clear() {
@@ -118,30 +128,8 @@ int main() {
     for (auto v : S) cout << v << " ";
     cout << "\nT: ";
     for (auto v : T) cout << v << " ";
-    cout << "\nSaturated Edges: ";
-    for (auto &[u, v] : saturated_edges) cout << "(" << u << ", " << v << ") ";
+    cout << "\nSaturated Edges: \n";
+    for (auto &[u, v] : saturated_edges) cout << "(" << u << ", " << v << ") , flow : " << g.getFlow(u, v) << "\n";
     cout << "\n";
     return 0;
 }
-/*
-// FlowType getFlow 사용 예시
-int main() {
-    ios_base::sync_with_stdio(false); cin.tie(nullptr);
-    int N, M; cin >> N >> M;
-
-    Dinic<int> g(N + 2);
-    vector<int> U, V;
-    int src = 0, sink = N + 1;
-    for(int i = 0; i < M; i++) {
-        int u, v, cap; cin >> u >> v >> cap;
-        U.push_back(u), V.push_back(v);
-        g.addEdge(u, v, cap);
-    }
-    cout << "maxFlow : " << g.Maxflow(src, sink) << "\n";
-    for(int i = 0; i < M; i++) {
-        cout << g.getFlow(U[i], V[i]) << "\n";
-    }
-
-    return 0;
-}
-*/
