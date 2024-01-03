@@ -1,4 +1,4 @@
-// SegTree
+// SegTree, 0-based index
 // 쿼리개수 Q, O(QlogN)
 // main 함수 사용예시는 boj 2042, 224ms AC
 #include <bits/stdc++.h>
