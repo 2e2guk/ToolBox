@@ -2,7 +2,7 @@
 
 link : https://www.acmicpc.net/problem/13926
 
-오일러-피 함수(Euler-totient function, Euler-phi function, https://en.wikipedia.org/wiki/Euler%27s_totient_function)는, 
+오일러-피 함수(Euler-totient function, Euler-phi function, https://en.wikipedia.org/wiki/Euler%27s_totient_function) 는, 
 
 **phi(n) : 1~n 사시의 수 중, n과 서로소인 수의 개수를 의미한다.**
 
