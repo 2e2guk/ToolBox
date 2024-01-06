@@ -11,3 +11,4 @@ link : https://www.acmicpc.net/problem/14565
 # Workflow #
 
 (**240104**) boj 14565 작성중
+(**240106**) boj 14565 완료
