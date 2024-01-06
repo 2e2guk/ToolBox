@@ -32,6 +32,10 @@ x를, y의 모듈러 계 위에서는, **x mod y** 와 같이 표현한다. **x 
 
 **xa mod m = 1** 인 경우, **a를 inverse of x modulo m** 이라고 한다. 
 
+제출 코드는, 0ms, 2020kb에 AC를 받는다. 
+
+제출 기록 : https://www.acmicpc.net/status?from_mine=1&problem_id=14565&user_id=dlrkddnr2718
+
 그러면, 이를 이용해, 어떻게 나눗셈을 수행할 수 있을까?
 
 -> 곱셉에 대한 모듈로 연산은 정의되어 있었고, 이제 x로 나눈다 라는 말은, **invese of x modulo m** 을 곱하라 라는 말과 동치이다. 
