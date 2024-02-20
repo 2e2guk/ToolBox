@@ -1,5 +1,5 @@
 // circulation
-// main 함수 사용 예시는 boj 25297
+// main 함수 사용 예시는 boj 25927
 #include <bits/stdc++.h>
 using namespace std;
 typedef long long ll;
