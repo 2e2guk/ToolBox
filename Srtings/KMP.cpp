@@ -40,5 +40,4 @@ int main() {
     cout << res.size() << "\n";
     for(const auto& ele : res) cout << ele + 1 << "\n";
     return 0;
-    return 0;
 }
