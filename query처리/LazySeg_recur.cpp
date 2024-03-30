@@ -1,5 +1,5 @@
+// boj 10999 구간 합 구하기 2
 // Lazy Propagation
-// main 함수 예시는 boj 10999 구간 합 구하기 2
 #include <bits/stdc++.h>
 using namespace std;
 typedef long long ll;
@@ -78,16 +78,12 @@ int main() {
     }
 
     for (int i = 0; i < M + K; i++) {
-        int a;
-        cin >> a;
+        int a; cin >> a;
         if (a == 1) {
-            int b, c;
-            ll d;
-            cin >> b >> c >> d;
+            int b, c; ll d; cin >> b >> c >> d;
             segTree.update_range(b-1, c-1, d);
         } else {
-            int b, c;
-            cin >> b >> c;
+            int b, c; cin >> b >> c;
             cout << segTree.sum(b-1, c-1) << "\n";
         }
     }
