@@ -1,6 +1,6 @@
 // boj 10999 구간 합 구하기 2
-// Lazy Propagation
-#include <bits/stdc++.h>
+// Lazy Propagation(recursion)
+#include <bits/stdc++.h> 
 using namespace std;
 typedef long long ll;
 
@@ -75,8 +75,7 @@ int main() {
 
     Lazyprop<ll, int> segTree(N);
     for (int i = 0; i < N; i++) {
-        ll num;
-        cin >> num;
+        ll num; cin >> num;
         segTree.update_range(i, i, num);
     }
 
