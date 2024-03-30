@@ -7,6 +7,8 @@
 6. centriod decomposition
 7. sqrt decomposition
 8. Euler-Tour-Technique(ETT)
+9. Dymanic Segment Tree
+10. Persistant Segment Tree
 
 # Query 처리 #
 앵간하면 fenwick으로 하자. 이거 쓰면 seg, lazyseg 이런거 필요 없음 
@@ -20,5 +22,5 @@
 
 (**240330**) LazyProp(재귀) 코드 구현
 
-(**240331**) Dynamic Segment Tree 구현
+(**240331**) Dynamic Segment Tree, Merge-Sort Tree 구현
 
