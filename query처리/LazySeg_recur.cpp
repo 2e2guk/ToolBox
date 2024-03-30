@@ -12,8 +12,11 @@ private:
     IndexType size;
 
     void update_lazy(IndexType node, IndexType start, IndexType end) {
-        if (lazy[node] != 0) {
+        // lazy 배열의 값이 0이 아닌 경우, 업데이트를 해야 할 필요성이 있다.
+        if (lazy[node] != 0) { 
+            // 어차피 leaf node 까지 내려가면, node가 관장하는 부분의 값을 lazy 배열의 값만큼 일괄적으로 업데이트해야 하므로, 구간의 길이만큼 업데이트 한다. 
             tree[node] += (end - start + 1) * lazy[node];
+            // leaf node가 아닌 경우, 자식 노드들에게 재귀적으로 lazy 값을 전파한다. 
             if (start != end) {
                 lazy[node * 2] += lazy[node];
                 lazy[node * 2 + 1] += lazy[node];
