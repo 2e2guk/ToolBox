@@ -23,6 +23,10 @@ link = https://www.acmicpc.net/problem/16833
 
 link = https://www.acmicpc.net/problem/30947
 
+7. Insects(D5, boj 25004) - ICPC > Regionals > Europe > Central European Regional Contest > Poland Collegiate Programming Contest > AMPPZ 2015 I번
+
+link = https://www.acmicpc.net/problem/25004
+
 
 # TODO #
 (231215)boj 25365 분석, 기타 좋아하는 백준 Flow문제들을 분석하자. 
