@@ -19,6 +19,10 @@ link = https://www.acmicpc.net/problem/15504
 
 link = https://www.acmicpc.net/problem/16833
 
+6. Cakes(D5, Boj30947) - ICPC > Regionals > Europe > Central European Regional Contest > CERC 2023 C번
+
+link = https://www.acmicpc.net/problem/30947
+
 
 # TODO #
 (231215)boj 25365 분석, 기타 좋아하는 백준 Flow문제들을 분석하자. 
