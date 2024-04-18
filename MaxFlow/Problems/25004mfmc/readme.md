@@ -23,4 +23,5 @@ Flow network modeling
 
 우리가 구하고자 하는 값은, np - Maxflow 의 값이 된다. 
 
-
+정답 코드는, 2868kb, 4ms에 AC를 받는다. 
+https://www.acmicpc.net/status?from_mine=1&problem_id=25004&user_id=dlrkddnr2718
