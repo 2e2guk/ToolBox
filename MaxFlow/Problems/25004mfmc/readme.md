@@ -1,6 +1,8 @@
 link = https://www.acmicpc.net/problem/25004
 
-(문제 요악)
+문제를 간단히 요약해 보자면, 다음과 같다. 미끼에는, 3가지 재료인 attractor, feed, poison 이 있고, 우리는 이를 적절히 조합해서 벌레를 잡기 위한 미끼를 만드는데, 이 미끼를 만드는데는 비용이 든다. 
+
+우리는 total profit을 최대화해야 하고, total profit = total price - \sum
 
 Flow network modeling
 
