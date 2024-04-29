@@ -27,6 +27,10 @@ link = https://www.acmicpc.net/problem/30947
 
 link = https://www.acmicpc.net/problem/25004
 
+8. Exciting Tournament(D5, boj21140) - ICPC > Regionals > North America > Southeast USA Regional > 2020 Southeast USA Regional Programming Contest G번
+
+link = https://www.acmicpc.net/problem/21140
+
 
 # TODO #
 (231215)boj 25365 분석, 기타 좋아하는 백준 Flow문제들을 분석하자. 
