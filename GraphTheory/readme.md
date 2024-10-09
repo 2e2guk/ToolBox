@@ -1,5 +1,11 @@
 #  그래프 이론 #
 1. Stoer-Wagner golbal min cut algorithm
+2. SCC, BCC
+3. LCA
+4. 2-SAT
+5. 단절점, 단절선
+6. 0-1BFS
+
 
 
 
