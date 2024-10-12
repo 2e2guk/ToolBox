@@ -6,7 +6,7 @@ using namespace std;
 int manacher(string inputStr){
     int strLen = inputStr.size(), r = 0, p = 0, ret = 0;
     string str = " ";
-	for(int i = 0; i < strLen; i++){
+    for(int i = 0; i < strLen; i++){
 		str += inputStr[i];
 		str += " ";
 	}
