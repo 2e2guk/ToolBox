@@ -32,9 +32,6 @@
 
 \headsep 0.2cm
 
-\setminted{breaklines=true, tabsize=2, breaksymbolleft=}
-\usemintedstyle{perldoc}
-
 \setlength{\partopsep}{-\topsep -\parskip}
 
 \title{Team Note of DART}
@@ -45,27 +42,23 @@
 \newcommand{\tested}{Should be \textcolor{red}{\textbf{tested}}.}
 \newcommand{\added}{Should be \textcolor{red}{\textbf{added}}.}
 \newcommand{\WIP}{\textcolor{red}{\textbf{WIP}}}
+
 \begin{document}
+
+\setminted{breaklines=true, tabsize=2, breaksymbolleft=}
+\usemintedstyle{perldoc}
 
 {
 	\Large
 
 	\maketitle
 
-\tableofcontents
+	\tableofcontents
 }
 \thispagestyle{fancy}
 \pagebreak
 
 \textcolor{red}{\textbf{ALL BELOW HERE ARE USELESS IF YOU READ THE STATEMENT WRONG}}
-
-
-
-
-
-
-
-
 
 \subsection {Credits}
 \begin{itemize}[noitemsep,nolistsep]
