@@ -1,0 +1,2795 @@
+% Team Note of Deobureo Minkyu Party.
+% These codes should be guaranteed, fast enough, short and easy to type.
+
+\documentclass[landscape, 8pt, a4paper, oneside, twocolumn]{extarticle}
+
+\usepackage[compact]{titlesec}
+\titlespacing*{\section}
+{0pt}{0px plus 1px minus 0px}{-2px plus 0px minus 0px}
+\titlespacing*{\subsection}
+{0pt}{0px plus 1px minus 0px}{0px plus 3px minus 3px}
+
+\setlength{\columnseprule}{0.4pt}
+\pagenumbering{arabic}
+
+\usepackage{kotex}
+
+\usepackage[left=0.8cm, right=0.8cm, top=2cm, bottom=0.3cm, a4paper]{geometry}
+\usepackage{amsmath}
+\usepackage{ulem}
+\usepackage{amssymb}
+\usepackage{minted}
+\usepackage{color, hyperref}
+\usepackage{indentfirst}
+\usepackage{enumitem}
+
+\usepackage{fancyhdr}
+\usepackage{lastpage}
+\pagestyle{fancy}
+\lhead{KAIST - Deobureo Minkyu Party.}
+\rhead{Page \thepage  \ of \pageref{LastPage} }
+\fancyfoot{}
+
+\headsep 0.2cm
+
+\setminted{breaklines=true, tabsize=2, breaksymbolleft=}
+%\usemintedstyle{perldoc}
+\usemintedstyle{default}
+%\setlength{\partopsep}{-\topsep - \parskip}
+\setlength{\partopsep}{0pt}
+
+\title{Team Note of Deobureo Minkyu Party}
+\author{tncks0121, koosaga, alex9801, hyea (alumni)}
+\date{Compiled on \today}
+
+\newcommand{\revised}{Should be \textcolor{red}{\textbf{revised}}.}
+\newcommand{\tested}{Should be \textcolor{red}{\textbf{tested}}.}
+\newcommand{\added}{Should be \textcolor{red}{\textbf{added}}.}
+\newcommand{\WIP}{\textcolor{red}{\textbf{WIP}}}
+\begin{document}
+
+{
+    \Large
+
+    \maketitle
+
+    \tableofcontents
+}
+    \thispagestyle{fancy}
+    \pagebreak
+
+    \textcolor{red}{\textbf{ALL BELOW HERE ARE USELESS IF YOU READ THE STATEMENT WRONG}}
+
+    \section{수학}
+    \subsection {에라토스테네스의 체}
+    \begin{minted}{cpp}
+//1~n까지의 소수를 빠르게 찾는 알고리즘, O(N * log log N)
+#include <bits/stdc++.h>
+
+using namespace std;
+using ll = long long;
+
+void erathos(vector<int> &result, int n){
+    vector<bool> notPrime(n + 1, false);
+
+    notPrime[1] = true;
+    for(int i = 2; i <= sqrt(n); i++){
+        if(notPrime[i]) continue;
+        for(int j = (i << 1); j <= n; j += i){
+            notPrime[j] = true;
+        }
+    }
+
+    for(int i = 1; i <= n; i++){
+        if(!notPrime[i])    result.emplace_back(i);
+    }
+}
+
+int main() {
+    ios::sync_with_stdio(false); cin.tie(nullptr);
+    ll n; cin >> n;
+    vector<int> primeList;
+    erathos(primeList, n);
+
+    for(int x : primeList){
+        cout << x << " ";
+    }
+    return 0;
+}
+    \end{minted}
+    \subsection {소수판정 알고리즘(확장유클리드)}
+    \begin{minted}{cpp}
+// (확장)유클리드 호제법
+// gcd(A, B) ->  O(max(logA, logB)) -> 확장 유클리드 호제법도 이거 따라감
+#include <bits/stdc++.h>
+using namespace std;
+typedef long long ll;
+
+ll gcd(ll x, ll y) { return __gcd(x, y); }
+ll lcm(ll x, ll y) { return x / gcd(x, y) * y; }
+ll mod(ll a, ll b) { return ((a%b) + b) % b; }
+ll ext_gcd(ll a, ll b, ll &x, ll &y) { // ax + by = gcd(a, b)
+  ll g = a; x = 1, y = 0;
+  if (b) g = ext_gcd(b, a % b, y, x), y -= a / b * x;
+  return g;
+}
+ll inv(ll a, ll m){ //return x when ax mod m = 1, fail -> -1
+    ll x, y;
+    ll g = ext_gcd(a, m, x, y);
+    if(g > 1) return -1;
+    return mod(x, m);
+}
+
+int main(){
+    ios_base::sync_with_stdio(false); cin.tie(nullptr);
+    ll mod, a; cin >> mod >> a;
+    cout << mod - a << " " << inv(a, mod);
+    return 0;
+}
+    \end{minted}
+    \subsection {밀러라빈 + 폴라드로}
+    \begin{minted}{cpp}
+// 밀러-라빈 소수 판별법, pollard-rho 고속 소인수분해
+// MillerRabin = O(log^2 N), pollard-rho = O(N^(1/4))
+#include <bits/stdc++.h>
+using namespace std;
+typedef long long ll;
+typedef unsigned long long ull;
+
+constexpr int SZ = 10000000;
+bool PrimeCheck[SZ+1]; vector<int> Primes;
+void Sieve(){
+    memset(PrimeCheck, true, sizeof PrimeCheck);
+    PrimeCheck[0] = PrimeCheck[1] = false;
+    for(int i=2; i<=SZ; i++){
+        if(PrimeCheck[i]) Primes.push_back(i);
+        for(auto j : Primes){
+            if(i*j > SZ) break;
+            PrimeCheck[i*j] = false;
+            if(i % j == 0) break;
+        }
+    }
+}
+ull MulMod(ull a, ull b, ull c){ return (__uint128_t)a * b % c; }
+ull PowMod(ull a, ull b, ull c){
+    ull res = 1; a %= c;
+    for(; b; b>>=1, a=MulMod(a,a,c)) if(b & 1) res = MulMod(res,a,c);
+    return res;
+}
+bool MillerRabin(ull n, ull a){
+    if(a % n == 0) return true;
+    int cnt = __builtin_ctzll(n - 1);
+    ull p = PowMod(a, n >> cnt, n);
+    if(p == 1 || p == n - 1) return true;
+    while(cnt--) if((p=MulMod(p,p,n)) == n - 1) return true;
+    return false;
+}
+bool IsPrime(ll n){
+    if(n <= SZ) return PrimeCheck[n];
+    if(n <= 2) return n == 2;
+    if(n % 2 == 0 || n % 3 == 0 || n % 5 == 0 || n % 7 == 0 || n % 11 == 0) return false;
+    // 32bit integer: {2, 7, 61}
+    for(int p : {2, 325, 9375, 28178, 450775, 9780504, 1795265022}) if(!MillerRabin(n, p)) return false;
+    return true;
+}
+ll Rho(ll n){
+    while(true){
+        ll x = rand() % (n - 2) + 2, y = x, c = rand() % (n - 1) + 1;
+        while(true){
+            x = (MulMod(x, x, n) + c) % n;
+            y = (MulMod(y, y, n) + c) % n;
+            y = (MulMod(y, y, n) + c) % n;
+            ll d = __gcd(abs(x - y), n);
+            if(d == 1) continue;
+            if(IsPrime(d)) return d;
+            else{ n = d; break; }
+        }
+    }
+}
+vector<pair<ll,ll>> Factorize(ll n){
+    vector<pair<ll,ll>> v;
+    int two = __builtin_ctzll(n);
+    if(two > 0) v.emplace_back(2, two), n >>= two;
+    if(n == 1) return v;
+    while(!IsPrime(n)){
+        ll d = Rho(n), cnt = 0;
+        while(n % d == 0) cnt++, n /= d;
+        v.emplace_back(d, cnt);
+        if(n == 1) break;
+    }
+    if(n != 1) v.emplace_back(n, 1);
+    return v;
+}
+int main() {
+    ios_base::sync_with_stdio(false); cin.tie(nullptr);
+    ll input; cin >> input;
+    Sieve();
+
+    // 입력된 수를 소인수분해
+    vector<pair<ll,ll>> factors = Factorize(input);
+    sort(factors.begin(), factors.end());
+    // 결과 출력
+    for (const auto& factor : factors) {
+        for (ll i = 0; i < factor.second; ++i) {
+            cout << factor.first << '\n';
+        }
+    }
+    return 0;
+}
+    \end{minted}
+    \subsection{중국인의 나머지 정리}
+    \begin{minted}{cpp}
+// Chinese Remainder Theorem(중국인의 나머지 정리)
+// O(k log M) -> k는 합동식의 개수, m은 mod 중 최댓값
+#include <bits/stdc++.h>
+using namespace std;
+typedef long long ll;
+
+ll mod(ll a, ll b){ return (a %= b) >= 0 ? a : a + b; }
+tuple<ll,ll,ll> ext_gcd(ll a, ll b){
+  if(b == 0) return {a, 1, 0};
+  auto [g,x,y] = ext_gcd(b, a % b);
+  return {g, y, x - a/b * y};
+}
+pair<ll,ll> crt(ll a1, ll m1, ll a2, ll m2){
+  ll g = gcd(m1, m2), m = m1 / g * m2;
+  if((a2 - a1) % g) return {-1, -1};
+  ll md = m2/g, s = mod((a2-a1)/g, m2/g);
+  ll t = mod(get<1>(ext_gcd(m1/g%md, m2/g)), md);
+  return { a1 + s * t % md * m1, m };
+}
+// a = a_i (mod m_i)를 만족하는 {a, lcm(m_1, ... , m_k)} 반환
+// a가 존재하지 않는 경우 {-1, -1} 반환
+pair<ll,ll> crt(const vector<ll> &a, const vector<ll> &m){
+  ll ra = a[0], rm = m[0];
+  for(int i=1; i<m.size(); i++){
+    auto [aa,mm] = crt(ra, rm, a[i], m[i]);
+    if(mm == -1) return {-1, -1}; else tie(ra,rm) = tie(aa,mm);
+  }
+  return {ra, rm};
+}
+int main() {
+    ios_base::sync_with_stdio(false); cin.tie(nullptr);
+    vector<ll> p(3, 0);
+    vector<ll> x(3, 0);
+    for(int i = 0; i < 3; i++) cin >> p[i];
+    for(int i = 0; i < 3; i++) cin >> x[i];
+    cout << crt(x, p).first;
+    return 0;
+}
+    \end{minted}
+    \subsection {오일러 피 함수}
+    \begin{minted}{cpp}
+// miller-rabin + pollard-pho + euler-phi => optimized euler-phi
+// O(N^(1/4))
+#include <bits/stdc++.h>
+using namespace std;
+typedef long long ll;
+typedef unsigned long long ull;
+
+constexpr int SZ = 10000000;
+bool PrimeCheck[SZ+1]; vector<int> Primes;
+void Sieve(){
+    memset(PrimeCheck, true, sizeof PrimeCheck);
+    PrimeCheck[0] = PrimeCheck[1] = false;
+    for(int i=2; i<=SZ; i++){
+        if(PrimeCheck[i]) Primes.push_back(i);
+        for(auto j : Primes){
+            if(i*j > SZ) break;
+            PrimeCheck[i*j] = false;
+            if(i % j == 0) break;
+        }
+    }
+}
+ull MulMod(ull a, ull b, ull c){ return (__uint128_t)a * b % c; }
+ull PowMod(ull a, ull b, ull c){
+    ull res = 1; a %= c;
+    for(; b; b>>=1, a=MulMod(a,a,c)) if(b & 1) res = MulMod(res,a,c);
+    return res;
+}
+bool MillerRabin(ull n, ull a){
+    if(a % n == 0) return true;
+    int cnt = __builtin_ctzll(n - 1);
+    ull p = PowMod(a, n >> cnt, n);
+    if(p == 1 || p == n - 1) return true;
+    while(cnt--) if((p=MulMod(p,p,n)) == n - 1) return true;
+    return false;
+}
+bool IsPrime(ll n){
+    if(n <= SZ) return PrimeCheck[n];
+    if(n <= 2) return n == 2;
+    if(n % 2 == 0 || n % 3 == 0 || n % 5 == 0 || n % 7 == 0 || n % 11 == 0) return false;
+    // 32bit integer: {2, 7, 61}
+    for(int p : {2, 325, 9375, 28178, 450775, 9780504, 1795265022}) if(!MillerRabin(n, p)) return false;
+    return true;
+}
+ll Rho(ll n){
+    while(true){
+        ll x = rand() % (n - 2) + 2, y = x, c = rand() % (n - 1) + 1;
+        while(true){
+            x = (MulMod(x, x, n) + c) % n;
+            y = (MulMod(y, y, n) + c) % n;
+            y = (MulMod(y, y, n) + c) % n;
+            ll d = __gcd(abs(x - y), n);
+            if(d == 1) continue;
+            if(IsPrime(d)) return d;
+            else{ n = d; break; }
+        }
+    }
+}
+vector<pair<ll,ll>> Factorize(ll n){
+    vector<pair<ll,ll>> v;
+    int two = __builtin_ctzll(n);
+    if(two > 0) v.emplace_back(2, two), n >>= two;
+    if(n == 1) return v;
+    while(!IsPrime(n)){
+        ll d = Rho(n), cnt = 0;
+        while(n % d == 0) cnt++, n /= d;
+        v.emplace_back(d, cnt);
+        if(n == 1) break;
+    }
+    if(n != 1) v.emplace_back(n, 1);
+    return v;
+}
+// 최적화된 오일러- 피 함수
+ll eulerPhiOptimized(ll n) {
+    if (IsPrime(n)) return n - 1;
+
+    ll ans = n;
+    vector<pair<ll, ll>> factors = Factorize(n); // Pollard-rho 소인수분해 사용
+    for (auto& factor : factors) {
+        ll p = factor.first;
+        ans /= p;
+        ans *= (p - 1);
+    }
+    return ans;
+}
+
+int main() {
+    ios::sync_with_stdio(false); cin.tie(nullptr);
+    Sieve();
+    ll n; cin >> n;
+    cout << eulerPhiOptimized(n);
+    return 0;
+}
+    \end{minted}
+    \subsection {행렬곱셈}
+    \begin{minted}{cpp}
+/*
+Strassen's algorithm
+O(r^(log7=2.81)) nxm * mxk 행렬곱에서 max(n,m,k)에 가장가깝고 더 큰 2^x값이 r이 된다
+정사각 행렬을
+큰 차원의 행렬에서 기존의 O(n^3)보다 조금 더 빠름
+main함수 예제는 BOJ 2704
+*/
+
+#include <bits/stdc++.h>
+using namespace std;
+typedef long long ll;
+typedef vector<vector<ll>> Matrix;
+
+// 행렬 덧셈
+Matrix add(const Matrix &A, const Matrix &B) {
+    ll n = A.size();
+    ll m = A[0].size();
+    Matrix C(n, vector<ll>(m, 0));
+    for (ll i = 0; i < n; ++i) {
+        for (ll j = 0; j < m; ++j) {
+            C[i][j] = A[i][j] + B[i][j];
+        }
+    }
+    return C;
+}
+
+// 행렬 뺄셈
+Matrix subtract(const Matrix &A, const Matrix &B) {
+    ll n = A.size();
+    ll m = A[0].size();
+    Matrix C(n, vector<ll>(m, 0));
+    for (ll i = 0; i < n; ++i) {
+        for (ll j = 0; j < m; ++j) {
+            C[i][j] = A[i][j] - B[i][j];
+        }
+    }
+    return C;
+}
+
+// 행렬 크기를 2^n 크기로 맞추는 함수
+Matrix resizeMatrix(const Matrix &A, ll newSize) {
+    ll oldRows = A.size();
+    ll oldCols = A[0].size();
+    Matrix resized(newSize, vector<ll>(newSize, 0));
+
+    for (ll i = 0; i < oldRows; ++i) {
+        for (ll j = 0; j < oldCols; ++j) {
+            resized[i][j] = A[i][j];
+        }
+    }
+    return resized;
+}
+
+// Strassen 알고리즘을 사용한 행렬 곱셈
+Matrix strassen(const Matrix &A, const Matrix &B) {
+    ll n = A.size();
+
+    if (n == 1) {
+        return {{A[0][0] * B[0][0]}};
+    }
+
+    // 행렬을 4개의 하위 블록으로 나눔
+    ll half = n / 2;
+    Matrix A11(half, vector<ll>(half)), A12(half, vector<ll>(half)),
+           A21(half, vector<ll>(half)), A22(half, vector<ll>(half)),
+           B11(half, vector<ll>(half)), B12(half, vector<ll>(half)),
+           B21(half, vector<ll>(half)), B22(half, vector<ll>(half));
+
+    // 행렬 분할
+    for (ll i = 0; i < half; ++i) {
+        for (ll j = 0; j < half; ++j) {
+            A11[i][j] = A[i][j];
+            A12[i][j] = A[i][j + half];
+            A21[i][j] = A[i + half][j];
+            A22[i][j] = A[i + half][j + half];
+
+            B11[i][j] = B[i][j];
+            B12[i][j] = B[i][j + half];
+            B21[i][j] = B[i + half][j];
+            B22[i][j] = B[i + half][j + half];
+        }
+    }
+
+    // Strassen의 7개의 중간 행렬 계산
+    Matrix M1 = strassen(add(A11, A22), add(B11, B22));
+    Matrix M2 = strassen(add(A21, A22), B11);
+    Matrix M3 = strassen(A11, subtract(B12, B22));
+    Matrix M4 = strassen(A22, subtract(B21, B11));
+    Matrix M5 = strassen(add(A11, A12), B22);
+    Matrix M6 = strassen(subtract(A21, A11), add(B11, B12));
+    Matrix M7 = strassen(subtract(A12, A22), add(B21, B22));
+
+    // 결과 행렬 조합
+    Matrix C(n, vector<ll>(n, 0));
+    for (ll i = 0; i < half; ++i) {
+        for (ll j = 0; j < half; ++j) {
+            C[i][j] = M1[i][j] + M4[i][j] - M5[i][j] + M7[i][j];           // C11
+            C[i][j + half] = M3[i][j] + M5[i][j];                           // C12
+            C[i + half][j] = M2[i][j] + M4[i][j];                           // C21
+            C[i + half][j + half] = M1[i][j] - M2[i][j] + M3[i][j] + M6[i][j]; // C22
+        }
+    }
+
+    return C;
+}
+
+// 새로운 함수: 행렬 크기 맞추기 및 Strassen 알고리즘 실행
+Matrix prepareAndExecuteStrassen(const Matrix &A, const Matrix &B, ll N, ll M, ll K) {
+    // 행렬 크기를 2의 제곱수로 맞추기 위해 새로운 크기 계산
+    ll maxSize = max({N, M, K});
+    ll newSize = 1;
+    while (newSize < maxSize) newSize *= 2;
+
+    // 행렬 크기를 2^n 크기로 맞추기 위한 함수 호출
+    Matrix A_resized = resizeMatrix(A, newSize);
+    Matrix B_resized = resizeMatrix(B, newSize);
+
+    // Strassen 알고리즘 실행
+    Matrix C_resized = strassen(A_resized, B_resized);
+
+    // 결과 행렬을 원래의 크기로 자르기
+    Matrix C_final(N, vector<ll>(K, 0));
+    for (ll i = 0; i < N; ++i) {
+        for (ll j = 0; j < K; ++j) {
+            C_final[i][j] = C_resized[i][j];
+        }
+    }
+
+    return C_final;
+}
+
+// 행렬 곱셈 문제 해결을 위한 main 함수
+int main() {
+    ll N, M, K;
+
+    // 행렬 A 입력 받기
+    cin >> N >> M;
+    Matrix A(N, vector<ll>(M));
+    for (ll i = 0; i < N; ++i) {
+        for (ll j = 0; j < M; ++j) {
+            cin >> A[i][j];
+        }
+    }
+
+    // 행렬 B 입력 받기
+    cin >> M >> K;
+    Matrix B(M, vector<ll>(K));
+    for (ll i = 0; i < M; ++i) {
+        for (ll j = 0; j < K; ++j) {
+            cin >> B[i][j];
+        }
+    }
+
+    // 행렬 크기를 맞추고 Strassen 알고리즘 실행
+    Matrix C = prepareAndExecuteStrassen(A, B, N, M, K);
+
+    // 결과 출력
+    for (ll i = 0; i < N; ++i) {
+        for (ll j = 0; j < K; ++j) {
+            cout << C[i][j] << " ";
+        }
+        cout << endl;
+    }
+
+    return 0;
+}
+    \end{minted}
+    \subsection {FFT}
+    \begin{minted}{cpp}
+// Fast Fourier Transform(FFT, 고속 푸리에 변환), O(N log N)
+#include <bits/stdc++.h>
+using namespace std;
+const double PI = acos(-1);
+typedef complex<double> cpx;
+typedef long long ll;
+/*
+input : f => Coefficient, w => principal n-th root of unity
+output : f => f(x_0), f(x_1), f(x_2), ... , f(x_n-1)
+T(N) = 2T(N/2) + O(N)
+*/
+void FFT(vector<cpx> &v, bool inv) {
+    ll S = v.size(); // ll 타입으로 선언
+
+    for(ll i=1, j=0; i<S; i++) {
+        ll bit = S >> 1;
+        while(j >= bit) {
+            j -= bit;
+            bit >>= 1;
+        }
+        j += bit;
+        if(i < j) swap(v[i], v[j]);
+    }
+
+    for(ll k=1; k<S; k<<=1) {
+        double angle = inv ? PI/k : -PI/k;
+        cpx dir(cos(angle), sin(angle));
+        for(ll i=0; i<S; i+=(k<<1)) {
+            cpx unit(1, 0);
+            for(ll j=0; j<k; j++) {
+                cpx a = v[i+j], b = v[i+j+k] * unit;
+                v[i+j] = a + b;
+                v[i+j+k] = a - b;
+                unit *= dir;
+            }
+        }
+    }
+
+    if(inv) {
+        for(ll i=0; i<S; i++) v[i] /= S;
+    }
+}
+/*
+input : a => A's Coefficient, b => B's Coefficient
+output : A * B
+*/
+vector<cpx> mul(vector<cpx> &v, vector<cpx> &u) {
+    ll S = 1;
+    while(S < max(v.size(), u.size())) S <<= 1;
+    S <<= 1; // 벡터의 길이를 조정하여 곱셈을 위한 충분한 길이를 확보
+
+    v.resize(S); FFT(v, false);
+    u.resize(S); FFT(u, false);
+
+    vector<cpx> w(S);
+    for(ll i=0; i<S; i++) w[i] = v[i] * u[i];
+
+    FFT(w, true); // 역 FFT 수행
+    return w;
+}
+
+int main() {
+  	ios_base::sync_with_stdio(false); cin.tie(nullptr);
+
+    int N; cin >> N;
+    vector<cpx> v(N*2), u(N);
+
+    for(int i=0; i<N; i++) {
+        int x; cin >> x;
+        v[i] = v[i+N] = cpx(x, 0);
+    }
+    for(int i=0; i<N; i++) {
+        int x; cin >> x;
+        u[N-1-i] = cpx(x, 0);
+    }
+
+    vector<cpx> w = mul(v, u);
+
+    int ans = 0;
+    for(int i=0; i<w.size(); i++) ans = max(ans, (int)round(w[i].real()));
+
+    cout << ans << "\n";
+}
+    \end{minted}
+
+    \section{문자열}
+    \subsection {KMP}
+    \begin{minted}{cpp}
+// 일대일 문자열 패턴 매칭 알고리즘
+// 문자열 S, 패턴 P라면, O(S + P) 시간에 찾는다.
+#include <bits/stdc++.h>
+using namespace std;
+
+// 입력 문자열 s의 실패 함수 값을 구해 주는 함수.
+vector<int> kmp_fail(const string &s) {
+    int sz = s.length();
+    vector<int> fail(sz);
+
+    for (int i = 1, j = 0; i < sz; i++) {
+        while (j && s[i] != s[j]) j = fail[j - 1];
+        if (s[i] == s[j]) fail[i] = ++j;
+    }
+    return fail;
+}
+// S에서, P가 몇 번 등장하는지를 구하는 kmp 함수.
+// 0-index이므로, 1부터 인덱스가 시작한다면, match_index에 1을 더해 줘야 한다.
+vector<int> kmp(const string &a, const string &b) {
+    int sz_a = a.length(); int sz_b = b.length();
+    vector<int> fail = kmp_fail(b), match_index;
+    for (int i = 0, j = 0; i < sz_a; i++) {
+        while (j && a[i] != b[j]) j = fail[j - 1];
+        if (a[i] == b[j]) {
+            if (j == sz_b - 1) {
+                match_index.push_back(i - sz_b + 1);
+                j = fail[j];
+            } else j++;
+        }
+    }
+    return match_index;
+}
+int main() {
+    ios_base::sync_with_stdio(false); cin.tie(nullptr);
+    string S, W;
+    getline(cin, S); getline(cin, W);
+    vector<int> res = kmp(S, W);
+    cout << res.size() << "\n";
+    for(const auto& ele : res) cout << ele + 1 << "\n";
+    return 0;
+}
+    \end{minted}
+    \subsection {Trie}
+    \begin{minted}{cpp}
+//S[i...] 의 prefix 들 중 S의 prefix이기도 한 녀석들 중 길이가 가장 긴 것의 길이에 대한 배열을 O(N)에 구하기
+#include <bits/stdc++.h>
+
+using namespace std;
+
+void getZarray(vector<int> &zValue, string str){
+    int n = str.size(), l = 0, r = 0;
+    zValue.resize(str.size() + 1);
+
+    reverse(str.begin(), str.end());
+	zValue[0] = str.size();
+	for(int i = 1; i < n; i++){
+        if(r < i){
+            zValue[i] = 0;
+            while(str[zValue[i]] == str[i + zValue[i]]) zValue[i]++;
+            l = i;
+            r = i + zValue[i] - 1;
+        }
+        else{
+            if(zValue[i - l] <= r - i)	zValue[i] = zValue[i - l];
+			else{
+                zValue[i] = r - i + 1;
+				while(str[zValue[i]] == str[i + zValue[i]]) zValue[i]++;
+				l = i;
+				r = i + zValue[i] - 1;
+			}
+        }
+	}
+}
+
+int main(){
+    int q, x;
+    cin.tie(nullptr); ios::sync_with_stdio(false);
+    string str;
+    vector<int> result;
+    cin >> str;
+    getZarray(result, str);
+    cin >> q;
+    while(q--){
+        cin >> x;
+        cout << result[str.size() - x] << '\n';
+    }
+    return 0;
+}
+    \end{minted}
+    \subsection {Manacher}
+    \begin{minted}{cpp}
+//가장 긴 팰린드롬을 O(n)에 찾는 알고리즘
+#include <bits/stdc++.h>
+
+using namespace std;
+
+int manacher(string inputStr){
+	int strLen = inputStr.size(), r = 0, p = 0, ret = 0;
+	string str = " ";
+	for(int i = 0; i < strLen; i++){
+		str += inputStr[i];
+		str += " ";
+	}
+	strLen = str.size();
+	vector<int> A(strLen + 1);
+	for(int i = 0; i < strLen; i++){
+		if(i <= r)	A[i] = min(r - i, A[2 * p - i]);
+		while(0 <= i - A[i] - 1 && i + A[i] + 1 < strLen && str[i - A[i] - 1] == str[i + A[i] + 1]) A[i]++;
+		if(r < i + A[i]){
+			r = i + A[i];
+			p = i;
+		}
+	}
+
+	for(int i = 1; i <= strLen; i++){
+		ret = max(ret, A[i]);
+	}
+
+	return ret;
+}
+
+int main(){
+	cin.tie(nullptr);
+	ios::sync_with_stdio(false);
+	string input;
+	cin >> input;
+	cout << manacher(input);
+	return 0;
+}
+    \end{minted}
+    \subsection {Z}
+    \begin{minted}{cpp}
+//S[i...] 의 prefix 들 중 S의 prefix이기도 한 녀석들 중 길이가 가장 긴 것의 길이에 대한 배열을 O(N)에 구하기
+#include <bits/stdc++.h>
+
+using namespace std;
+
+void getZarray(vector<int> &zValue, string str){
+    int n = str.size(), l = 0, r = 0;
+    zValue.resize(str.size() + 1);
+
+    reverse(str.begin(), str.end());
+	zValue[0] = str.size();
+	for(int i = 1; i < n; i++){
+        if(r < i){
+            zValue[i] = 0;
+            while(str[zValue[i]] == str[i + zValue[i]]) zValue[i]++;
+            l = i;
+            r = i + zValue[i] - 1;
+        }
+        else{
+            if(zValue[i - l] <= r - i)	zValue[i] = zValue[i - l];
+			else{
+                zValue[i] = r - i + 1;
+				while(str[zValue[i]] == str[i + zValue[i]]) zValue[i]++;
+				l = i;
+				r = i + zValue[i] - 1;
+			}
+        }
+	}
+}
+
+int main(){
+    int q, x;
+    cin.tie(nullptr); ios::sync_with_stdio(false);
+    string str;
+    vector<int> result;
+    cin >> str;
+    getZarray(result, str);
+    cin >> q;
+    while(q--){
+        cin >> x;
+        cout << result[str.size() - x] << '\n';
+    }
+    return 0;
+}
+    \end{minted}
+    \subsection{Suffix Array}
+    \begin{minted}{cpp}
+#include <bits/stdc++.h>
+
+using namespace std;
+
+string input;
+
+int n;
+int t;
+
+vector<int>suffix, cur, nextGroup, lcp, revSuffix;
+
+bool cmp(const int &a, const int &b){
+    if(cur[a] == cur[b])    return cur[a + t] < cur[b + t];
+    else return cur[a] < cur[b];
+}
+
+void getSuffix(){
+    suffix.resize(n);
+    cur.resize(n + 1);
+    nextGroup.resize(n + 1);
+    for(int i = 0; i < n; i++){
+        suffix[i] = i;
+        cur[i] = input[i] - 'a';
+    }
+    cur[n] = -1;
+    for(t = 1; t <= n; t <<= 1){
+        sort(suffix.begin(), suffix.end(), cmp);
+        nextGroup[n] = -1;
+        nextGroup[suffix[0]] = 0;
+        for(int i = 1; i < n; i++){
+            if(cmp(suffix[i - 1], suffix[i]))    nextGroup[suffix[i]] = nextGroup[suffix[i - 1]] + 1;
+            else nextGroup[suffix[i]] = nextGroup[suffix[i - 1]];
+        }
+        for(int i = 0; i < n; i++){
+            cur[i] = nextGroup[i];
+        }
+    }
+}
+
+void getLcp(){
+    int k = 0;
+    lcp.resize(n + 1);
+    revSuffix.resize(n + 1);
+    for(int i = 0; i < n; i++){
+        revSuffix[suffix[i]] = i;
+    }
+
+    for(int i = 0; i < n; i++){
+        if(revSuffix[i]){
+            int j = suffix[revSuffix[i] - 1];
+            while(input[i + k] == input[j + k])    k++;
+            lcp[revSuffix[i]] = k;
+            if(k)    k--;
+        }
+    }
+}
+
+int main(){
+    cin.tie(0); ios::sync_with_stdio(0);
+    cin >> input;
+    n = input.size();
+    getSuffix();
+    getLcp();
+    for(int i = 0; i < n; i++){
+        cout << suffix[i] + 1 << " ";
+    }
+    cout << "\nx ";
+    for(int i = 1; i < n; i++){
+        cout << lcp[i] << " ";
+    }
+    return 0;
+}
+    \end{minted}
+    \subsection{Aho-Corasick}
+    \begin{minted}{cpp}
+// 일대다 문자열 패턴 매칭 알고리즘
+// Aho-Corasick
+// 문자열의 길이 N, k개의 패턴, 각각의 길이 m[i] (1 <= i <= k)
+// O(N + sigma(m[i], i : 1 ~ k))
+#include <bits/stdc++.h>
+using namespace std;
+
+struct Trie {
+    Trie *go[26];
+    Trie *fail;
+    bool output;
+
+    Trie() {
+        fill(go, go + 26, nullptr);
+        output = false;
+    }
+    ~Trie() {
+        for(int i = 0; i < 26; i++)
+            if(go[i]) delete go[i];
+    }
+    void insert(const char* key) {
+        if(*key == '\0'){
+            output = true;
+            return;
+        }
+        int next = *key - 'a';
+        if(!go[next]) {
+            go[next] = new Trie;
+        }
+        go[next]->insert(key + 1);
+    }
+};
+
+void buildTrieAndFailureLinks(Trie *root, int N) {
+    for(int i = 0; i < N; i++) {
+        char str[10001];
+        cin >> str;
+        root->insert(str);
+    }
+
+    queue<Trie*> Q;
+    root->fail = root;
+    Q.push(root);
+    while(!Q.empty()) {
+        Trie *current = Q.front();
+        Q.pop();
+
+        for(int i = 0; i < 26; i++) {
+            Trie *next = current->go[i];
+            if(!next) continue;
+
+            if(current == root) next->fail = root;
+            else {
+                Trie *dest = current->fail;
+                while(dest != root && !dest->go[i])
+                    dest = dest->fail;
+                if(dest->go[i]) dest = dest->go[i];
+                next->fail = dest;
+            }
+            if(next->fail->output) next->output = true;
+            Q.push(next);
+        }
+    }
+}
+
+bool searchInTrie(Trie *root, const char *str) {
+    Trie* current = root;
+    for(int c = 0; str[c]; c++){
+        int next = str[c] - 'a';
+        while(current != root && !current->go[next])
+            current = current->fail;
+        if(current->go[next])
+            current = current->go[next];
+        if(current->output)
+            return true;
+    }
+    return false;
+}
+
+int main() {
+    ios_base::sync_with_stdio(false); cin.tie(nullptr);
+    int N, M;
+    Trie* root = new Trie;
+
+    cin >> N;
+    buildTrieAndFailureLinks(root, N);
+
+    cin >> M;
+    for(int i = 0; i < M; i++) {
+        char str[10001];
+        cin >> str;
+        cout << (searchInTrie(root, str) ? "YES" : "NO") << "\n";
+    }
+
+    delete root;
+}
+    \end{minted}
+    \subsection{Rabin-Karp}
+    \begin{minted}{cpp}
+// 문자열 패턴 매칭 알고리즘
+// Rabin-Karp algorithm(라빈-카프 알고리즘)
+// Rolling- Hash 기법
+#include <iostream>
+
+using namespace std;
+
+const int BASE = 401, MOD = 1e9 + 7, MAX = 1e6 + 6;
+int HASH, len, HASH2, POWER[MAX];
+
+void solve() {
+   	POWER[0] = 1;
+   	for (int i = 1; i < MAX; i++) POWER[i] = md(MOD, POWER[i - 1] * BASE);
+   	string s, t;
+   	getline(cin, s);
+   	getline(cin, t);
+   	len = sz(t);
+   	if (sz(s) < len) {
+    	cout << 0;
+      	return;
+   	}
+   	for (int i = len - 1; i >= 0; i--) {
+      	HASH = md(MOD, HASH + t[i] * POWER[len - 1 - i]);
+      	HASH2 = md(MOD, HASH2 + s[i] * POWER[len - 1 - i]);
+   	}
+   	vi ans;
+   	if (HASH == HASH2) ans.pb(0);
+   	for (int i = 1; i + len - 1 < sz(s); i++) {
+      	HASH2 = md(MOD, md(MOD, HASH2 - s[i - 1] * POWER[len - 1]) * BASE + s[i + len - 1]);
+      	if (HASH == HASH2) ans.pb(i);
+   	}
+   	cout << sz(ans) << endl;
+   	for (int i: ans) cout << i + 1 << ' ';
+}
+int main() {
+	return 0;
+}
+    \end{minted}
+    \section{그래프}
+    \subsection{SCC}
+    \begin{minted}{cpp}
+//SCC 타잔 알고리즘 구현 (2-SAT에 응용할 때, x1 v x2 를 ¬x1 → x2, ¬x2 → x1 로 변환하여 그래프를 그린 다음)
+//¬x1과 x1이 같은 SCC 안에 있으면 모순. (sccNo[2 * i] == sccNo[2 * i - 1])
+#include <bits/stdc++.h>
+
+using namespace std;
+
+int id, visited[10001], sccNo[4004];
+bool finished[10001];
+vector<int> graph[10001];
+vector<vector<int> >SCC;
+stack<int> S;
+
+int v, e;
+
+/*2-SAT 에서 필요한 index 매핑 함수*/
+int getIdx(int k){
+	return k > 0 ? 2 * k : 2 * (-k) - 1;
+}
+
+int dfs(int cur){
+    visited[cur] = ++id;  //고유의 id값 할당
+    S.push(cur);
+    int parent = visited[cur];
+    //가장 높은 위치를 parent에 저장
+    for(int next:graph[cur]){
+        if(!visited[next]){   //탐색되지 않은 경우
+            parent = min(parent, dfs(next));
+        }
+        else if(!finished[next]){   //탐색이 되었으나 SCC에 포함이 되지 않은 경우
+            parent = min(parent, visited[next]);
+        }
+    }
+    //자기 자신이 부모인 경우 (자기 자신이 SCC에서 가장 높은 위치인 경우)
+    if(parent == visited[cur]){
+        vector<int> group;
+        while(1){   //자기 자신이 나올때까지 stack에서 pop하고 SCC에 저장
+            int p = S.top();
+            S.pop();
+            group.push_back(p);
+            sccNo[p] = SCC.size() + 1;
+            finished[p] = true; //SCC에 포함되었음을 체크
+            if(p == cur)    break;
+        }
+        sort(group.begin(), group.end());
+        SCC.push_back(group);
+    }
+    return parent;
+}
+
+int main(){
+    cin.tie(nullptr); ios::sync_with_stdio(false);
+
+    cin >> v >> e;
+    int x, y;
+    for(int i = 0; i < e; i++){
+        cin >> x >> y;
+        graph[x].push_back(y);
+    }
+
+    for(int i = 1; i <= v; i++){
+        if(!visited[i])   dfs(i);
+    }
+
+    cout << SCC.size() << "\n";
+    for(int i = 0 ; i < SCC.size(); i++){
+        for(int data : SCC[i])    cout << data << " ";
+        cout << "\n";
+    }
+
+    return 0;
+}
+    \end{minted}
+    \subsection{BCC (단절점)}
+    \begin{minted}{cpp}
+//단절점 탐색 dfs
+//root 이면서 자식 수 2개 이상, 해당 정점을 거치지 않고 빠른 방문 번호를 가진 정점으로 이동 불가
+#include <bits/stdc++.h>
+
+using namespace std;
+
+const int MAXSIZE = 1e4 + 1;
+int v, e;
+
+vector<int> graph[MAXSIZE];
+vector<int> ans;
+int visited[MAXSIZE], cnt; //방문 여부 및 순서 저장
+bool isArt[MAXSIZE]; //단절점(Articulation Point) 여부 저장
+
+int dfs(int cur, bool isRoot){
+	visited[cur] = ++cnt; //정점 방문 순서 저장
+	int ret = visited[cur], prev, child = 0;
+	for(int next : graph[cur]){
+		if(!visited[next]){
+			child++;
+			prev = dfs(next, false);
+			ret = min(ret, prev);
+            //자식 노드들이 정점 A를 거치지 않고 정점 A보다 빠른 방문번호를 가진 정점으로 이동 불가
+			if(!isRoot && prev >= visited[cur]){//해당 조건을 만족시 cur-next는 단절선
+				isArt[cur] = true;
+			}
+		}
+		else{
+			ret = min(ret, visited[next]);
+		}
+	}
+    //단절선 찾으려면 필요 없음
+	if(isRoot && child >= 2){//루트 node이고 자식의 수가 2개 이상이면
+		isArt[cur] = true;
+	}
+	return ret;
+}
+
+int main(){
+    cin.tie(nullptr);
+    ios::sync_with_stdio(false);
+    cin >> v >> e;
+	int x, y;
+	for(int i = 0; i < e; i++){
+		cin >> x >> y;
+		graph[x].push_back(y);
+		graph[y].push_back(x);
+	}
+
+	for(int i = 1; i <= v; i++) {
+		if(!visited[i])	dfs(i, true);
+	}
+
+	for(int i = 1; i <= v; i++) {
+		if(isArt[i])	ans.push_back(i);
+	}
+
+	sort(ans.begin(), ans.end());
+	cout << ans.size() << "\n";
+	for(int p : ans){
+		cout << p << " ";
+	}
+    return 0;
+}
+    \end{minted}
+    \subsection{LCA}
+    \begin{minted}{cpp}
+// LCA -> main 함수는 boj 11437(https://www.acmicpc.net/problem/11437)
+#include <bits/stdc++.h>
+using namespace std;
+
+template<typename ValueType, typename IndexType>
+struct LCA {
+    int N;
+    int MAXLN;
+    vector<vector<int>> tree;
+    vector<vector<int>> par;
+    vector<int> depth;
+    vector<ValueType> node_values;
+
+    unordered_map<IndexType, int> idx_map;
+    vector<IndexType> idx_reverse_map;
+
+    int idx_counter;
+
+    // 생성자
+    LCA() : idx_counter(0) {
+    }
+
+    int get_idx(IndexType idx) {
+        auto it = idx_map.find(idx);
+        if(it != idx_map.end()) {
+            return it->second;
+        } else {
+            int new_idx = idx_counter++;
+            idx_map[idx] = new_idx;
+            idx_reverse_map.push_back(idx);
+            tree.emplace_back();
+            depth.push_back(0);
+            node_values.emplace_back();
+            return new_idx;
+        }
+    }
+
+    // LCA 구성 간선 추가.
+    void add_edge(IndexType u_idx, IndexType v_idx) {
+        int u = get_idx(u_idx);
+        int v = get_idx(v_idx);
+        tree[u].push_back(v);
+        tree[v].push_back(u);
+    }
+
+    // 노드에 값 부여
+    void set_node_value(IndexType idx, ValueType value) {
+        int u = get_idx(idx);
+        node_values[u] = value;
+    }
+
+    void dfs(int node, int parent) {
+        for(int next : tree[node]) {
+            if(next == parent) continue;
+            depth[next] = depth[node] + 1;
+            par[0][next] = node;
+            dfs(next, node);
+        }
+    }
+
+    // LCA 전처리 -> LCA 쿼리 날리기 전에 호출 필수
+    void prepare_LCA(IndexType root_idx) {
+        N = idx_counter;
+        MAXLN = ceil(log2(N)) + 1;
+        par.assign(MAXLN, vector<int>(N));
+        int root = get_idx(root_idx);
+        depth[root] = 0;
+        par[0][root] = root;
+        dfs(root, -1);
+        for(int i = 1; i < MAXLN; i++) {
+            for(int j = 0; j < N; j++) {
+                par[i][j] = par[i - 1][par[i - 1][j]];
+            }
+        }
+    }
+
+    // LCA 구하기
+    IndexType LCA_query(IndexType u_idx, IndexType v_idx) {
+        int u = get_idx(u_idx);
+        int v = get_idx(v_idx);
+
+        if(depth[u] < depth[v]) swap(u, v);
+        for(int i = MAXLN - 1; i >= 0; i--) {
+            if(depth[u] - (1 << i) >= depth[v]) {
+                u = par[i][u];
+            }
+        }
+        if(u == v) return idx_reverse_map[u];
+        for(int i = MAXLN - 1; i >= 0; i--) {
+            if(par[i][u] != par[i][v]) {
+                u = par[i][u];
+                v = par[i][v];
+            }
+        }
+        return idx_reverse_map[par[0][u]];
+    }
+
+    // 노드에 들어있는 값 참조
+    ValueType get_node_value(IndexType idx) {
+        int u = get_idx(idx);
+        return node_values[u];
+    }
+};
+int main() {
+    ios_base::sync_with_stdio(false); cin.tie(nullptr);
+    LCA<int, int> lca;
+    int n; cin >> n;
+    for(int i = 0; i < n - 1; i++) {
+        int u, v; cin >> u >> v;
+        lca.add_edge(u, v);
+    }
+    lca.prepare_LCA(1);
+    int m; cin >> m;
+    for(int i = 0; i < m; i++) {
+        int u, v; cin >> u >> v;
+        cout << lca.LCA_query(u, v) << "\n";
+    }
+
+    return 0;
+}
+    \end{minted}
+    \subsection{이분매칭 (hopcroft-karp)}
+    \begin{minted}{cpp}
+// hopcroft-karp <- bipartite matching
+// O(sqrt(V) * E)
+#include <bits/stdc++.h>
+using namespace std;
+
+// 적정히 조정
+const int MAXN = 2005, MAXM = 1005;
+
+template <typename MatchType>
+class HopcroftKarp {
+    vector<int> gph[MAXN];
+    int dis[MAXN], vis[MAXN];
+    vector<MatchType> l, r;
+
+    bool bfs(int n) {
+        queue<int> que;
+        bool ok = 0;
+        memset(dis, 0, sizeof(dis));
+        for(int i = 0; i < n; i++) {
+            if(l[i] == -1 && !dis[i]) {
+                que.push(i);
+                dis[i] = 1;
+            }
+        }
+        while(!que.empty()) {
+            int x = que.front();
+            que.pop();
+            for(auto &i : gph[x]) {
+                if(r[i] == -1) ok = 1;
+                else if(!dis[r[i]]) {
+                    dis[r[i]] = dis[x] + 1;
+                    que.push(r[i]);
+                }
+            }
+        }
+        return ok;
+    }
+
+    bool dfs(int x) {
+        if(vis[x]) return 0;
+        vis[x] = 1;
+        for(auto &i : gph[x]) {
+            if(r[i] == -1 || (!vis[r[i]] && dis[r[i]] == dis[x] + 1 && dfs(r[i]))) {
+                l[x] = i;
+                r[i] = x;
+                return 1;
+            }
+        }
+        return 0;
+    }
+
+public:
+    HopcroftKarp() { l.resize(MAXN, -1); r.resize(MAXM, -1); }
+
+    void clear() {
+        for(int i = 0; i < MAXN; i++) gph[i].clear();
+    }
+
+    void addEdge(int l, int r) {
+        gph[l].push_back(r);
+    }
+    // n에 들어가는 것은, 왼쪽 정점 집합 L의 크기이다.
+    MatchType match(int n) {
+        MatchType ret = 0;
+        while(bfs(n)) {
+            memset(vis, 0, sizeof(vis));
+            for(int i = 0; i < n; i++) if(l[i] == -1 && dfs(i)) ret++;
+        }
+        return ret;
+    }
+};
+int main() {
+    ios_base::sync_with_stdio(false); cin.tie(nullptr);
+    int N, M; cin >> N >> M;
+    HopcroftKarp<int> hk;
+    for(int i = 0; i < N; i++) {
+        int S; cin >> S;
+        for(int j = 0; j < S; j++) {
+            int k; cin >> k; k--;
+            // 두 번의 노드에 모두 해당 일을 연결
+            hk.addEdge(i, k);
+            hk.addEdge(i + N, k);
+        }
+    }
+    cout << hk.match(2 * N);
+    return 0;
+}
+    \end{minted}
+    \subsection{최대유량 (디닉)}
+    \begin{minted}{cpp}
+// Dinic's Maxflow algorithm
+// O(V^2E)
+// main 함수 예시는 boj 11406 + Additional Implementation(민컷구하기 + 포화 간선 유량 구하기)
+#include <bits/stdc++.h>
+using namespace std;
+typedef long long ll;
+
+template<typename FlowType>
+struct Dinic {
+    struct Edge {
+        int v, rev;
+        FlowType flow, cap;
+    };
+
+    int V;
+    vector<int> level;
+    vector<vector<Edge>> adj;
+    map<pair<int, int>, int> edgeIndexMap;
+
+    Dinic(int V) : V(V), adj(V), level(V) {}
+
+    void addEdge(int u, int v, FlowType cap) {
+        edgeIndexMap[{u, v}] = adj[u].size();
+        Edge forward = {v, (int)adj[v].size(), 0, cap};
+        Edge reverse = {u, (int)adj[u].size(), 0, 0};
+        adj[u].push_back(forward);
+        adj[v].push_back(reverse);
+    }
+
+    bool BFS_level_graph(int s, int t) {
+        fill(level.begin(), level.end(), -1);
+        level[s] = 0;
+        queue<int> q;
+        q.push(s);
+        while (!q.empty()) {
+            int u = q.front();
+            q.pop();
+            for (Edge &e : adj[u]) {
+                if (level[e.v] < 0 && e.flow < e.cap) {
+                    level[e.v] = level[u] + 1;
+                    q.push(e.v);
+                }
+            }
+        }
+        return level[t] >= 0;
+    }
+
+    FlowType DFS_blocking_flow(int u, FlowType flow, int t, vector<int> &start) {
+        if (u == t) return flow;
+
+        for (; start[u] < adj[u].size(); start[u]++) {
+            Edge &e = adj[u][start[u]];
+            if (level[e.v] == level[u] + 1 && e.flow < e.cap) {
+                FlowType curr_flow = min(flow, e.cap - e.flow);
+                FlowType temp_flow = DFS_blocking_flow(e.v, curr_flow, t, start);
+
+                if (temp_flow > 0) {
+                    e.flow += temp_flow;
+                    adj[e.v][e.rev].flow -= temp_flow;
+                    return temp_flow;
+                }
+            }
+        }
+        return 0;
+    }
+
+    FlowType Maxflow(int s, int t) {
+        FlowType total = 0;
+        while (BFS_level_graph(s, t)) {
+            vector<int> start(V);
+            while (FlowType flow = DFS_blocking_flow(s, numeric_limits<FlowType>::max(), t, start)) {
+                total += flow;
+            }
+        }
+        return total;
+    }
+
+    tuple<FlowType, vector<int>, vector<int>, vector<pair<int, int>>> getMincut(int s, int t) {
+        FlowType maxflow = Maxflow(s, t);
+        vector<int> S, T;
+        vector<pair<int, int>> saturated_edges;
+        BFS_level_graph(s, t);
+        for(int i = 0; i < V; i++) (level[i] != -1 ? S : T).push_back(i);
+        for(auto i : S) for(auto e : adj[i]) if(e.cap != 0 && level[e.v] == -1) saturated_edges.emplace_back(i, e.v);
+        return {maxflow, S, T, saturated_edges};
+    }
+
+    FlowType getFlow(int u, int v) {
+        auto it = edgeIndexMap.find({u, v});
+        if (it != edgeIndexMap.end()) {
+            return adj[u][it->second].flow;
+        }
+        return -1;
+    }
+
+    void clear() {
+        for(int i = 0; i < V; i++) adj[i].clear();
+        fill(level.begin(), level.end(), 0);
+    }
+};
+int main() {
+    ios_base::sync_with_stdio(false); cin.tie(nullptr);
+    int N, M; cin >> N >> M;
+
+    Dinic<int> g(N + M + 2);
+    int s = 0, t = N + M + 1;
+    for(int i = 1; i <= N; i++) {
+        int a; cin >> a;
+        g.addEdge(s, i, a);
+    }
+    for(int i = 1; i <= M; i++) {
+        int b; cin >> b;
+        g.addEdge(N + i, t, b);
+    }
+    for(int i = 1; i <= M; i++) {
+        for(int j = 1; j <= N; j++) {
+            int c; cin >> c;
+            g.addEdge(j, N + i, c);
+        }
+    }
+    cout << g.Maxflow(s, t) << "\n";
+    cout << "Additional implementation" << "\n";
+    // 최소 컷 계산
+    auto [maxflow, S, T, saturated_edges] = g.getMincut(s, t);
+    // 결과 출력
+    cout << "Maxflow: " << maxflow << "\n";
+    cout << "S: ";
+    for (auto v : S) cout << v << " ";
+    cout << "\nT: ";
+    for (auto v : T) cout << v << " ";
+    cout << "\nSaturated Edges: \n";
+    for (auto &[u, v] : saturated_edges) cout << "(" << u << ", " << v << ") , flow : " << g.getFlow(u, v) << "\n";
+    cout << "\n";
+    return 0;
+}
+    \end{minted}
+    \subsection{MCMF + SPFA}
+    \begin{minted}{cpp}
+// MCMF
+#include <bits/stdc++.h>
+using namespace std;
+
+template<typename FlowType, typename CostType>
+class MCMF {
+    struct Edge {
+        int to;
+        FlowType capacity;
+        CostType cost;
+        int rev;
+    };
+
+    int V;
+    vector<vector<Edge>> adj;
+    vector<CostType> dist;
+    vector<int> previous, edgeIndex;
+
+public:
+    MCMF(int V) : V(V), adj(V) {}
+
+    void addEdge(int from, int to, FlowType cap, CostType cost) {
+        adj[from].push_back({to, cap, cost, (int)adj[to].size()});
+        adj[to].push_back({from, 0, -cost, (int)adj[from].size() - 1});
+    }
+
+    bool SPFA(int src, int sink) {
+        dist.assign(V, numeric_limits<CostType>::max());
+        previous.assign(V, -1);
+        edgeIndex.assign(V, -1);
+        vector<bool> inQueue(V, false);
+
+        queue<int> Q;
+        dist[src] = 0;
+        Q.push(src);
+        inQueue[src] = true;
+
+        while (!Q.empty()) {
+            int u = Q.front();
+            Q.pop();
+            inQueue[u] = false;
+
+            for(int i = 0; i < adj[u].size(); ++i) {
+                Edge &e = adj[u][i];
+                if(e.capacity > 0 && dist[u] + e.cost < dist[e.to]) {
+                    dist[e.to] = dist[u] + e.cost;
+                    previous[e.to] = u;
+                    edgeIndex[e.to] = i;
+
+                    if(!inQueue[e.to]) {
+                        Q.push(e.to);
+                        inQueue[e.to] = true;
+                    }
+                }
+            }
+        }
+        return previous[sink] != -1;
+    }
+    pair<FlowType, CostType> getMCMF(int src, int sink) {
+        FlowType maxFlow = 0;
+        CostType minCost = 0;
+
+        while (SPFA(src, sink)) {
+            FlowType flow = numeric_limits<FlowType>::max();
+            for(int v = sink; v != src; v = previous[v]) {
+                int u = previous[v];
+                flow = min(flow, adj[u][edgeIndex[v]].capacity);
+            }
+            for(int v = sink; v != src; v = previous[v]) {
+                int u = previous[v];
+                Edge &e = adj[u][edgeIndex[v]];
+                e.capacity -= flow;
+                adj[v][e.rev].capacity += flow;
+                minCost += flow * e.cost;
+            }
+
+            maxFlow += flow;
+        }
+        return {maxFlow, minCost};
+    }
+};
+int main() {
+    ios_base::sync_with_stdio(false); cin.tie(nullptr);
+    int N;
+    cin >> N;
+    vector<int> A(N + 1, 0), H(N + 1, 0), L(N + 1, 0);
+    MCMF<int, int> mcmf(2 * N + 2);
+
+    for(int i = 1; i <= N; i++) cin >> A[i];
+    for(int i = 1; i <= N; i++) cin >> H[i];
+    for(int i = 1; i <= N; i++) cin >> L[i];
+
+    int src = 0, sink = 2 * N + 1;
+    int max_A = *max_element(A.begin() + 1, A.end());
+
+    for(int i = 1; i <= N; i++) {
+        if(A[i] == max_A) {
+            mcmf.addEdge(src, i, L[i], H[i]);
+            mcmf.addEdge(i + N, sink, 0, H[i]);
+        } else {
+            mcmf.addEdge(src, i, L[i] - 1, H[i]);
+            mcmf.addEdge(i + N, sink, 1, H[i]);
+        }
+    }
+
+    for(int i = 1; i <= N; i++) {
+        for(int j = 1; j <= N; j++) {
+            if(A[i] > A[j]) {
+                int cost = A[i] ^ A[j];
+                mcmf.addEdge(i, j + N, 1, -cost);
+            }
+        }
+    }
+
+    auto ans = mcmf.getMCMF(src, sink);
+    cout << -ans.second << "\n";
+
+    return 0;
+}
+    \end{minted}
+    \subsection{Circulation}
+    \begin{minted}{cpp}
+// circulation
+// main 함수 사용 예시는 boj 25927
+#include <bits/stdc++.h>
+using namespace std;
+typedef long long ll;
+
+template<typename FlowType>
+struct Dinic {
+    struct Edge {
+        int v, rev;
+        FlowType flow, cap;
+    };
+
+    int V;
+    vector<int> level;
+    vector<vector<Edge>> adj;
+    map<pair<int, int>, int> edgeIndexMap;
+
+    Dinic(int V) : V(V), adj(V), level(V) {}
+
+    void addEdge(int u, int v, FlowType cap) {
+        edgeIndexMap[{u, v}] = adj[u].size();
+        Edge forward = {v, (int)adj[v].size(), 0, cap};
+        Edge reverse = {u, (int)adj[u].size(), 0, 0};
+        adj[u].push_back(forward);
+        adj[v].push_back(reverse);
+    }
+
+    bool BFS_level_graph(int s, int t) {
+        fill(level.begin(), level.end(), -1);
+        level[s] = 0;
+        queue<int> q;
+        q.push(s);
+        while (!q.empty()) {
+            int u = q.front();
+            q.pop();
+            for (Edge &e : adj[u]) {
+                if (level[e.v] < 0 && e.flow < e.cap) {
+                    level[e.v] = level[u] + 1;
+                    q.push(e.v);
+                }
+            }
+        }
+        return level[t] >= 0;
+    }
+
+    FlowType DFS_blocking_flow(int u, FlowType flow, int t, vector<int> &start) {
+        if (u == t) return flow;
+
+        for (; start[u] < adj[u].size(); start[u]++) {
+            Edge &e = adj[u][start[u]];
+            if (level[e.v] == level[u] + 1 && e.flow < e.cap) {
+                FlowType curr_flow = min(flow, e.cap - e.flow);
+                FlowType temp_flow = DFS_blocking_flow(e.v, curr_flow, t, start);
+
+                if (temp_flow > 0) {
+                    e.flow += temp_flow;
+                    adj[e.v][e.rev].flow -= temp_flow;
+                    return temp_flow;
+                }
+            }
+        }
+        return 0;
+    }
+
+    FlowType Maxflow(int s, int t) {
+        FlowType total = 0;
+        while (BFS_level_graph(s, t)) {
+            vector<int> start(V);
+            while (FlowType flow = DFS_blocking_flow(s, numeric_limits<FlowType>::max(), t, start)) {
+                total += flow;
+            }
+        }
+        return total;
+    }
+
+    FlowType getFlow(int u, int v) {
+        auto it = edgeIndexMap.find({u, v});
+        if (it != edgeIndexMap.end()) {
+            return adj[u][it->second].flow;
+        }
+        return (FlowType)0;
+    }
+
+    void clear() {
+        for(int i = 0; i < V; i++) adj[i].clear();
+        fill(level.begin(), level.end(), 0);
+    }
+};
+int main() {
+    ios_base::sync_with_stdio(false); cin.tie(nullptr);
+    int N, M, s, t; cin >> N >> M >> s >> t;
+    Dinic<ll> dinic(N + 2);
+    int ns = 0, nt = N + 1;
+    vector<ll> u(M + 1, 0), v(M + 1, 0), c(M + 1, 0), p(M + 1, 0);
+    vector<ll> demand(N + 1, 0);
+    ll D = 0;
+    for(int i = 1; i <= M; i++) {
+        cin >> u[i] >> v[i] >> c[i] >> p[i];
+        if(p[i] == 0) {
+            dinic.addEdge(u[i], v[i], (c[i] % 2) == 0 ? c[i] : c[i] - 1);
+        } else {
+            dinic.addEdge(u[i], v[i], (c[i] - 1) % 2 == 0 ? c[i] - 1 : c[i] - 2);
+            demand[u[i]]++;
+            demand[v[i]]--;
+        }
+    }
+    for(int i = 1; i <= N; i++) {
+        if(demand[i] % 2 != 0) {
+            if(i == s || i == t) continue;
+            else {
+                cout << -1;
+                return 0;
+            }
+        }
+    }
+    for(int i = 1; i <= N; i++) {
+        if(demand[i] > 0) {
+            D += demand[i];
+            dinic.addEdge(i, nt, demand[i]);
+        }
+        if(demand[i] < 0) dinic.addEdge(ns, i, -demand[i]);
+    }
+    dinic.addEdge(t, s, numeric_limits<ll>::max());
+    ll feasibleflow = dinic.Maxflow(ns, nt);
+    if(feasibleflow != D) cout << -1;
+    else {
+        ll maxflow = dinic.Maxflow(s, t);
+        cout << maxflow << "\n";
+        for(int i = 1; i <= M; i++) {
+            if(p[i] == 1) cout << dinic.getFlow(u[i], v[i]) + 1 << "\n";
+            else cout << dinic.getFlow(u[i], v[i]) << "\n";
+        }
+    }
+    return 0;
+}
+    \end{minted}
+    \subsection{헝가리안}
+    \begin{minted}{cpp}
+// hungarian(kuhn-munkres) - 할당 문제 해결
+// O(N^3)
+//main 함수는 boj 14216
+#include <bits/stdc++.h>
+using namespace std;
+
+template<typename CostType>
+struct Hungarian {
+    int n;
+    vector<vector<CostType>> mat;
+    Hungarian(int n) : n(n), mat(n + 1, vector<CostType>(n+1, numeric_limits<CostType>::max())) {}
+    void addEdge(int s, int e, CostType x){ mat[s][e] = min(mat[s][e], x); }
+
+    pair<CostType, vector<int>> run(){
+        vector<CostType> u(n + 1), v(n + 1), m(n + 1);
+        vector<int> p(n + 1), w(n + 1), c(n + 1);
+        for(int i=1, a, b; i<=n; i++){
+            p[0] = i; b = 0; fill(m.begin(), m.end(), numeric_limits<CostType>::max()); fill(c.begin(), c.end(), 0);
+            do{
+                int nxt; CostType delta = numeric_limits<CostType>::max(); c[b] = 1; a = p[b];
+                for(int j = 1; j <= n; j++){
+                    if(c[j]) continue;
+                    CostType t = mat[a][j] - u[a] - v[j];
+                    if(t < m[j]) m[j] = t, w[j] = b;
+                    if(m[j] < delta) delta = m[j], nxt = j;
+                }
+                for(int j = 0; j <= n; j++){
+                    if(c[j]) u[p[j]] += delta, v[j] -= delta; else m[j] -= delta;
+                }
+                b = nxt;
+            }while(p[b] != 0);
+            do{int nxt = w[b]; p[b] = p[nxt]; b = nxt;}while(b != 0);
+        }
+        vector<int> assign(n + 1); for(int i = 1; i <= n; i++) assign[p[i]] = i;
+        return {-v[0], assign};
+    }
+};
+int main() {
+    ios_base::sync_with_stdio(false); cin.tie(nullptr);
+    int N; cin >> N;
+    Hungarian<int> hungarian(N);
+
+    // 입력으로 주어진 비용을 Hungarian 구조체에 추가
+    for(int i = 1; i <= N; i++){
+        for(int j = 1; j <= N; j++){
+            int cost; cin >> cost;
+            hungarian.addEdge(i, j, cost);
+        }
+    }
+    // Hungarian 알고리즘을 실행하여 결과를 받음
+    auto result = hungarian.run();
+
+    // 최소 비용 출력
+    cout << result.first;
+    return 0;
+}
+    \end{minted}
+    \section{구간쿼리}
+    \subsection{Seg}
+    \begin{minted}{cpp}
+// 0-based index, 쿼리개수 Q 배열길이 N, O(QlogN), 공간복잡도 O(N)
+#include <bits/stdc++.h>
+using namespace std;
+typedef long long ll;
+
+template<typename ValueType, typename IndexType>
+struct Seg {
+    vector<ValueType> segmentTree;
+    vector<ValueType> array;
+    IndexType n;
+
+    Seg(const vector<ValueType>& inputArray) {
+        n = inputArray.size();
+        array = inputArray;
+        IndexType treeDepth = ceil(log2(n));
+        IndexType treeSize = 1 << (treeDepth + 1);
+        segmentTree.resize(treeSize);
+        makeSegmentTree(1, 0, n - 1);
+    }
+
+    ValueType makeSegmentTree(IndexType node, IndexType start, IndexType end) {
+        if (start == end) {
+            return segmentTree[node] = array[start];
+        }
+        IndexType mid = (start + end) / 2;
+        return segmentTree[node] = makeSegmentTree(node * 2, start, mid) + makeSegmentTree(node * 2 + 1, mid + 1, end);
+    }
+
+    // 인덱스 idx의 값을, diff만큼 업데이트한다.
+    void updateSegmentTree(IndexType node, IndexType start, IndexType end, IndexType idx, ValueType diff) {
+        // 현재 노드가 나타내는 구간에 idx가 포함되지 않는 경우 -> skip 하고, 포함되는 노드가 하나라도 있으면, 업데이트.
+        if (idx < start || idx > end) return;
+        segmentTree[node] += diff;
+        // 업데이트했는데 leaf가 아니면, 재귀적으로 leaf 까지 내려가면서 update.
+        if (start != end) {
+            IndexType mid = (start + end) / 2;
+            updateSegmentTree(node * 2, start, mid, idx, diff);
+            updateSegmentTree(node * 2 + 1, mid + 1, end, idx, diff);
+        }
+    }
+
+    ValueType sumSegmentTree(IndexType node, IndexType left, IndexType right, IndexType start, IndexType end) {
+        if (left > end || right < start) return 0;
+        if (left <= start && right >= end) return segmentTree[node];
+        IndexType mid = (start + end) / 2;
+        return sumSegmentTree(node * 2, left, right, start, mid) + sumSegmentTree(node * 2 + 1, left, right, mid + 1, end);
+    }
+
+    void update(IndexType idx, ValueType newValue) {
+        ValueType diff = newValue - array[idx];
+        array[idx] = newValue;
+        updateSegmentTree(1, 0, n - 1, idx, diff);
+    }
+
+    ValueType query(IndexType left, IndexType right) {
+        return sumSegmentTree(1, left, right, 0, n - 1);
+    }
+};
+
+int main() {
+    ios::sync_with_stdio(false); cin.tie(nullptr);
+    int n, m, k; cin >> n >> m >> k;
+
+    vector<ll> arr(n);
+    for (int i = 0; i < n; i++) cin >> arr[i];
+
+    Seg<ll, ll> segTree(arr);
+
+    for (int i = 0; i < m + k; i++) {
+        ll order, left, right;
+        cin >> order >> left >> right;
+        if (order == 1) {
+            segTree.update(left - 1, right);
+        } else {
+            cout << segTree.query(left - 1, right - 1) << '\n';
+        }
+    }
+    return 0;
+}
+    \end{minted}
+    \subsection{Lazy Seg}
+    \begin{minted}{cpp}
+// update, query 함수 호출시 현재 노드의 lazy배열의 값 확인 후, 0이면 넘기고 0아니면 적절히 업뎃
+//  O(N + Q log N)
+#include <bits/stdc++.h>
+using namespace std;
+typedef long long ll;
+
+template<typename ValueType, typename IndexType>
+class Lazyprop {
+private:
+    vector<ValueType> tree;
+    vector<ValueType> lazy;
+    IndexType size;
+
+    void update_lazy(IndexType node, IndexType start, IndexType end) {
+        if (lazy[node] != 0) {
+            tree[node] += (end - start + 1) * lazy[node];
+            if (start != end) {
+                lazy[node * 2] += lazy[node];
+                lazy[node * 2 + 1] += lazy[node];
+            }
+            lazy[node] = 0;
+        }
+    }
+
+    void update_range(IndexType node, IndexType start, IndexType end, IndexType left, IndexType right, ValueType diff) {
+        update_lazy(node, start, end);
+        if (left > end || right < start) return;
+        if (left <= start && end <= right) {
+            tree[node] += (end - start + 1) * diff;
+            if (start != end) {
+                lazy[node * 2] += diff;
+                lazy[node * 2 + 1] += diff;
+            }
+            return;
+        }
+        IndexType mid = (start + end) / 2;
+        update_range(node * 2, start, mid, left, right, diff);
+        update_range(node * 2 + 1, mid + 1, end, left, right, diff);
+        tree[node] = tree[node * 2] + tree[node * 2 + 1];
+    }
+
+    ValueType sum(IndexType node, IndexType start, IndexType end, IndexType left, IndexType right) {
+        update_lazy(node, start, end);
+        if (left > end || right < start) return 0;
+        if (left <= start && end <= right) return tree[node];
+        IndexType mid = (start + end) / 2;
+        return sum(node * 2, start, mid, left, right) + sum(node * 2 + 1, mid + 1, end, left, right);
+    }
+
+public:
+    Lazyprop(int n) {
+        IndexType h = (int)ceil(log2(n));
+        size = 1 << (h + 1);
+        tree.resize(size, 0);
+        lazy.resize(size, 0);
+    }
+
+    ValueType sum(IndexType left, IndexType right) {
+        return sum(1, 0, size/2 - 1, left, right);
+    }
+
+    void update_range(IndexType left, IndexType right, ValueType diff) {
+        update_range(1, 0, size/2 - 1, left, right, diff);
+    }
+};
+
+int main() {
+    ios_base::sync_with_stdio(false); cin.tie(nullptr);
+
+    int N, M, K;
+    cin >> N >> M >> K;
+
+    Lazyprop<ll, int> segTree(N);
+    for (int i = 0; i < N; i++) {
+        ll num; cin >> num;
+        segTree.update_range(i, i, num);
+    }
+
+    for (int i = 0; i < M + K; i++) {
+        int a; cin >> a;
+        if (a == 1) {
+            int b, c; ll d; cin >> b >> c >> d;
+            segTree.update_range(b-1, c-1, d);
+        } else {
+            int b, c; cin >> b >> c;
+            cout << segTree.sum(b-1, c-1) << "\n";
+        }
+    }
+
+    return 0;
+}
+    \end{minted}
+    \subsection{Fenw}
+    \begin{minted}{cpp}
+// PURQ, RUPQ, RURQ 모두 지원, 코드 자체는 1-based로 구현. 0-based 호출한다고 가정.
+// O(log N) + 상수 이점(bit 연산)
+#include <bits/stdc++.h>
+using namespace std;
+typedef long long ll;
+
+// Point Update, Range Query
+template<typename ValueType, typename IndexType>
+struct fenwick_PURQ {
+    IndexType n;
+    vector<ValueType> tree;
+    fenwick_PURQ(IndexType n) : n(n) { tree.resize(n + 1); }
+
+    ValueType sum(IndexType i) {
+        ValueType ret = 0;
+        for (; i; i -= i & -i) ret += tree[i];
+        return ret;
+    }
+
+    void update(IndexType i, ValueType x) { for (i++; i <= n; i += i & -i) tree[i] += x; }
+
+    ValueType query(IndexType l, IndexType r) { return l > r ? 0 : sum(r + 1) - sum(l); }
+};
+
+// Range Update, Point Query, PURQ 필요.
+template<typename ValueType, typename IndexType>
+struct fenwick_RUPQ {
+    fenwick_PURQ<ValueType, IndexType> f;
+    fenwick_RUPQ(IndexType n) : f(fenwick_PURQ<ValueType, IndexType>(n + 1)) {}
+
+    void update(IndexType l, IndexType r, ValueType x) { f.update(l, x), f.update(r + 1, -x); }
+
+    ValueType query(IndexType i) { return f.query(0, i); }
+};
+
+// Range Update, Range Query, PURQ 필요.
+template<typename ValueType, typename IndexType>
+struct fenwick_RURQ {
+    IndexType N;
+    fenwick_PURQ<ValueType, IndexType> A, B;
+    fenwick_RURQ(IndexType N) : N(N), A(fenwick_PURQ<ValueType, IndexType>(N + 1)), B(fenwick_PURQ<ValueType, IndexType>(N + 1)) {}
+
+    void update(IndexType L, IndexType R, ValueType d) {
+        A.update(L, d);
+        A.update(R + 1, -d);
+
+        B.update(L, (-L + 1) * d);
+        B.update(R + 1, R * d);
+    }
+
+    ValueType query(IndexType L, IndexType R) {
+        ValueType R_Value = A.query(0, R) * R + B.query(0, R);
+        ValueType L_Value = 0;
+        if (L > 0) {
+            L_Value = A.query(0, L - 1) * (L - 1) + B.query(0, L - 1);
+        }
+        return R_Value - L_Value;
+    }
+};
+int main() {
+    ios_base::sync_with_stdio(false); cin.tie(nullptr);
+    int n, m; cin >> n >> m;
+    fenwick_PURQ<ll, ll> fenw(n);
+    vector<ll> a(n, 0);
+    // initialize
+    for (int i = 0; i < n; i++) fenw.update(i, a[i]);
+
+    for (int i = 0; i < m; i++) {
+        ll x; cin >> x;
+        if (x == 1) {
+            ll idx, val; cin >> idx >> val;
+            ll diff = val - a[idx - 1];
+            a[idx - 1] = val;
+            fenw.update(idx - 1, diff);
+        } else {
+            ll l, r; cin >> l >> r;
+            if(l > r) swap(l, r);
+            cout << fenw.query(l - 1, r - 1) << "\n";
+        }
+    }
+    return 0;
+}
+    \end{minted}
+    \subsection{sqrt decomposition}
+    \begin{minted}{cpp}
+// 주어진 쿼리를, O(sqrt(N))개의 그룹으로 분할해 결과를 구한다. -> 시간복잡도  O(sqrt(N)), 세그보다 공간 복잡도 측면에서 우수.
+// 1 i j k: Ai, Ai+1, ..., Aj로 이루어진 부분 수열 중에서 k보다 큰 원소의 개수를 출력한다. 2 i k: Ai를 k로 바꾼다.
+#include <bits/stdc++.h>
+using namespace std;
+typedef long long ll;
+
+template<typename ValueType>
+struct SqrtDecomposition {
+    vector<ValueType> arr;
+    vector<vector<ValueType>> buckets;
+    ll sq;
+
+	SqrtDecomposition(ll n, const vector<ValueType>& input) : arr(input) {
+        sq = sqrt(n);
+        buckets.resize((n + sq - 1) / sq); // 올림 처리를 통한 크기 설정
+        for(ll i = 0; i < n; i++){
+            buckets[i / sq].push_back(arr[i]);
+        }
+		// 이 부분은, 문제에 따라서 추가한 부분이다. -> upper_bound 함수 이용해서 빠르게 k보다 큰 원소의 개수 count.
+        for(ll i = 0; i < buckets.size(); i++) { // buckets.size()를 사용
+            sort(buckets[i].begin(), buckets[i].end());
+        }
+    }
+
+    void update(ll idx, ValueType val) {
+        ll id = idx / sq; // 그룹 번호
+        auto &bucket = buckets[id];
+        auto it = lower_bound(bucket.begin(), bucket.end(), arr[idx]);
+        bucket.erase(it);
+        bucket.insert(upper_bound(bucket.begin(), bucket.end(), val), val);
+        arr[idx] = val;
+    }
+
+    ValueType query(ValueType l, ValueType r, ValueType k) {
+        ValueType ret = 0;
+        while(l % sq != 0 && l <= r) {
+            if(arr[l] > k) ret++;
+            l++;
+        }
+        while((r + 1) % sq != 0 && l <= r) {
+            if(arr[r] > k) ret++;
+            r--;
+        }
+        while(l <= r){
+            ret += buckets[l / sq].end() - upper_bound(buckets[l / sq].begin(), buckets[l / sq].end(), k);
+            l += sq;
+        }
+        return ret;
+    }
+};
+
+int main(){
+    ios_base::sync_with_stdio(false); cin.tie(nullptr);
+    ll n, m; cin >> n;
+    vector<ll> arr(n);
+    for(int i = 0; i < n; i++) cin >> arr[i];
+
+    SqrtDecomposition<ll> root(n, arr);
+
+    cin >> m;
+    for(int i = 0; i < m; i++){
+        int a; cin >> a;
+        if(a == 2) {
+            ll b, c; cin >> b >> c; b--;
+            root.update(b, c);
+        } else {
+            ll l, r, val; cin >> l >> r >> val; l--; r--;
+            cout << root.query(l, r, val) << "\n";
+        }
+    }
+    return 0;
+}
+    \end{minted}
+    \subsection{mo's}
+    \begin{minted}{cpp}
+// Offline query, N개의 원소에 대한 쿼리를 Q개 처리, 만약 시작점과 끝점을 이동하는데 걸리는 시간이 T(N)이라면, 최종 시간복잡도는 O((N + Q)√ N * T(N)).
+// i j: Ai, Ai+1, ..., Aj에 존재하는 서로 다른 수의 개수를 출력
+//가장 많이 등장하는 수, 서로 다른 수의 개수, abs(Ai - Aj) ≤ K인 (i, j) 쌍의 수(펜윅 트리 결합) 등에 사용
+#include <bits/stdc++.h>
+using namespace std;
+typedef long long ll;
+
+struct query{
+    int index, s, e;
+};
+int n, m, sqrtN, cnt;
+vector<query> v;
+int ans[100001], num[100001], check[1000001];
+
+bool cmp(query &lhs, query &rhs){
+    if(lhs.s/sqrtN == rhs.s/sqrtN)    return lhs.e < rhs.e;
+    else return lhs.s/sqrtN < rhs.s/sqrtN;
+}
+int main(){
+    cin.tie(nullptr); ios::sync_with_stdio(false);
+    int s, e;
+    cin >> n;
+    sqrtN = sqrt(n);
+
+    for(int i = 1; i <= n; i++) cin >> num[i];
+
+    cin >> m;
+    for(int i = 0; i < m; i++){
+        cin >> s >> e;
+        v.push_back({i, s, e});
+    }
+    sort(v.begin(), v.end(), cmp);
+    s = v[0].s; e = v[0].e;
+
+    /*최초 구간 계산하기*/
+    for(int i = s; i <= e; i++){
+        if(!check[num[i]])    cnt++;
+        check[num[i]]++;
+    }
+    ans[v[0].index] = cnt;
+    for(int i = 1; i < m; i++){
+        while(s < v[i].s){
+            /*update(구간 축소)*/
+            // 수의 개수를 하나 줄임
+            check[num[s]]--;
+            // 수의 개수가 0이 되면 "서로 다른 수"의 개수 감소
+            if(!check[num[s]])    cnt--;
+            /*------*/
+            s++;
+        }
+        while(v[i].s < s){
+            s--;
+            /*update(구간 확장)*/
+            // 새로운 수라면 서로 다른 수의 개수 증가
+            if(!check[num[s]])    cnt++;
+            // 해당 수의 개수 증가
+            check[num[s]]++;
+            /*------*/
+        }
+        while(e < v[i].e){
+            e++;
+            /*update(구간 확장)*/
+            if(!check[num[e]])    cnt++;
+            check[num[e]]++;
+            /*------*/
+        }
+        while(v[i].e < e){
+            /*update(구간 축소)*/
+            check[num[e]]--;
+            if(!check[num[e]])    cnt--;
+            /*------*/
+            e--;
+        }
+        ans[v[i].index] = cnt; //쿼리에 대한 정답 저장
+    }
+    for(int i = 0; i < m; i++) cout << ans[i] << "\n";
+    return 0;
+}
+    \end{minted}
+    \subsection{dynamic seg}
+    \begin{minted}{cpp}
+// pointer 이용, Segtree 메모리 사용량 줄여주는 방식.  공간복잡도 O(Q log N) -> N >= 10^6 일때 사용.
+// x번째 값을 v로 바꾸고 싶은 경우에는 update(root, 구간의 시작, 구간의 끝, x, v)를 호출
+// l부터 r번째까지의 합을 구하고 싶은 경우에는 query(root, 구간의 시작, 구간의 끝, l, r)을 호출
+#include <bits/stdc++.h>
+using namespace std;
+typedef long long ll;
+
+template<typename ValueType, typename IndexType>
+class DynamicSegmentTree {
+public:
+    struct Node {
+        ValueType value = ValueType();
+        Node *left = nullptr, *right = nullptr;
+    };
+
+private:
+    Node *root = new Node();
+    IndexType N; // 인덱스의 최대값 (배열 크기 - 1)
+
+    void update(Node *node, IndexType nodeLeft, IndexType nodeRight, IndexType updateIndex, ValueType value) {
+        if (updateIndex < nodeLeft || updateIndex > nodeRight) return;
+        if (nodeLeft == nodeRight) {
+            node->value = value;
+            return;
+        }
+        IndexType mid = nodeLeft + (nodeRight - nodeLeft) / 2;
+        if (updateIndex <= mid) {
+            if (!node->left) node->left = new Node();
+            update(node->left, nodeLeft, mid, updateIndex, value);
+        } else {
+            if (!node->right) node->right = new Node();
+            update(node->right, mid + 1, nodeRight, updateIndex, value);
+        }
+        node->value = (node->left ? node->left->value : ValueType()) + (node->right ? node->right->value : ValueType());
+    }
+
+    ValueType query(Node *node, IndexType nodeLeft, IndexType nodeRight, IndexType queryLeft, IndexType queryRight) {
+        if (!node || nodeRight < queryLeft || nodeLeft > queryRight) return ValueType();
+        if (queryLeft <= nodeLeft && nodeRight <= queryRight) return node->value;
+        IndexType mid = nodeLeft + (nodeRight - nodeLeft) / 2;
+        return query(node->left, nodeLeft, mid, queryLeft, queryRight) + query(node->right, mid + 1, nodeRight, queryLeft, queryRight);
+    }
+
+public:
+    DynamicSegmentTree(IndexType size) : N(size - 1) {}
+
+    void update(IndexType index, ValueType value) {
+        update(root, (IndexType)0, N, index, value);
+    }
+
+    ValueType query(IndexType left, IndexType right) {
+        return query(root, (IndexType)0, N, left, right);
+    }
+};
+
+int main() {
+    ios_base::sync_with_stdio(false); cin.tie(nullptr);
+    ll n, m, k; cin >> n >> m >> k;
+    DynamicSegmentTree<ll, ll> dynaseg(n);
+    for (ll i = 0; i < n; i++) {
+        ll v; cin >> v;
+        dynaseg.update(i, v);
+    }
+    for (ll i = 0; i < m + k; i++) {
+        ll op; cin >> op;
+        if (op == 1) {
+            ll b, c; cin >> b >> c; b--;
+            dynaseg.update(b, c);
+        }
+        if (op == 2) {
+            ll b, c; cin >> b >> c; b--; c--;
+            cout << dynaseg.query(b, c) << "\n";
+        }
+    }
+    return 0;
+}
+    \end{minted}
+    \subsection{PST}
+    \begin{minted}{cpp}
+// Persistant Segment Tree
+// query는 구간 합 쿼리
+// main함수 예시는 boj 11012 Egg
+#include<bits/stdc++.h>
+using namespace std;
+
+#define mp(a, b) make_pair((a),(b))
+#define lbi(X, n) int(lower_bound(X.begin(), X.end(), n) - begin(X))
+#define ubi(X, n) int(upper_bound(X.begin(), X.end(), n) - begin(X))
+
+const int YMAX = 1e5 + 5, inf = 1e9;
+typedef long long ll;
+
+// l = 왼쪽 자식, r = 오른쪽 자식, v = 현재 노드
+struct Node { int l = -1, r = -1, v = 0; };
+
+template<typename IndexType, typename ValueType>
+struct PST {
+    // version 관리를 위한, vector<int>
+    vector<ValueType> version;
+    IndexType N;
+    vector<Node> tree;
+
+    PST(IndexType n) : N(n) {
+        tree.push_back({});
+        version.push_back(0);
+    }
+    IndexType update(IndexType i, ValueType v) {
+        IndexType prev_root = version.back();
+        // 업데이트 과정에서의 root은, 기존의 PST의 마지막 index의 다음 값을 가지게 되므로, tree.size() 를 할당하면 된다.
+        IndexType root = tree.size();
+        tree.push_back({});
+        // version 벡터에, 현재 PST의 root를 저장한다.
+        version.push_back(root);
+        update(prev_root, root, 0, N - 1, i, v);
+        // 업데이트가 끝난 후, 새로운 버전의 index를 반환한다. version.size()-1을 반환하는 이유는, 0-based index이기 때문이다.
+        return version.size() - 1;
+    }
+    ValueType query(IndexType version_idx, IndexType l, IndexType r) {
+        // version[version_idx]에는, version_idx에 해당하는 버전의 루트 노드의 번호가 저장된다.
+        return query(version[version_idx], 0, N - 1, l, r);
+    }
+private:
+    void update(IndexType prev, IndexType cur, IndexType nl, IndexType nr, IndexType i, IndexType v) {
+        // 현재 노드가 없거나, 현재 노드가 표현하는 구간에, 업데이트하려는 인덱스가 포함되지 않는 경우, 아무 작업도 하지 않는다.
+        if (cur == -1 || nr < i || nl > i) return;
+        // leaf node인 경우.
+        if (nl == nr) {
+            tree[cur].v += v;
+            return;
+        }
+        // For convenience, makes previous tree always has node in this place
+        if (tree[prev].l == -1) {
+            tree[prev].l = tree.size();
+            tree[prev].r = tree.size() + 1;
+            tree.push_back({}), tree.push_back({});
+        }
+
+        IndexType m = nl + (nr - nl) / 2;
+        // 왼쪽 자식 노드를 업데이트해야 하는 경우. 오른쪽 자식 노드는 그대로 사용한다.
+        if (i <= m) {
+            IndexType new_child = tree.size();
+            tree.push_back(tree[tree[prev].l]);
+            tree[cur].l = new_child;
+            tree[cur].r = tree[prev].r;
+            update(tree[prev].l, tree[cur].l, nl, m, i, v);
+        }
+        // 오른쪽 자식 노드를 업데이트해야 하는 경우. 왼쪽 자식 노드는 그대로 사용한다.
+        else {
+            IndexType new_child = tree.size();
+            tree.push_back(tree[tree[prev].r]);
+            tree[cur].l = tree[prev].l;
+            tree[cur].r = new_child;
+            update(tree[prev].r, tree[cur].r, m + 1, nr, i, v);
+        }
+
+        tree[cur].v = (~tree[cur].l ? tree[tree[cur].l].v : 0) + (~tree[cur].r ? tree[tree[cur].r].v : 0);
+    }
+    // n = 노드 번호, nl, nr = 노드가 관할하는 구간, l, r = 쿼리를 날리는 구간
+    ValueType query(IndexType n, IndexType nl, IndexType nr, IndexType l, IndexType r) {
+
+        if (n == -1 || nr < l || nl > r) return 0;
+        if (nl >= l && nr <= r) return tree[n].v;
+        IndexType m = nl + (nr - nl) / 2;
+        return query(tree[n].l, nl, m, l, r) + query(tree[n].r, m + 1, nr, l, r);
+    }
+};
+
+int main() {
+    ios_base::sync_with_stdio(false); cin.tie(nullptr);
+	PST<int, int> pst(YMAX);
+	int T; cin >> T;
+	vector<int> res;
+	while(T--) {
+		int n, m; cin >> n >> m;
+		vector<pair<int, int>> query(n);
+		for (auto&[x, y]: query)cin >> x >> y;
+		sort(query.begin(), query.end());
+
+		vector<pair<int, int>> versions;
+		for (auto&[x, y]: query) {
+			int version_idx = pst.update(y, 1);
+			versions.push_back({x, version_idx});
+		}
+		int vidx = pst.update(YMAX - 1, 0);
+		versions.push_back({1e9, vidx});
+
+		ll ans = 0;
+		while (m--) {
+			int x1, x2, y1, y2; cin >> x1 >> x2 >> y1 >> y2;
+			if (x1 > x2) swap(x1, x2);
+			if (y1 > y2) swap(y1, y2);
+
+			// x2 보다 큰 버전들 중 가장 먼저 나오는 것의 바로 이전 버전
+			int version_right = versions[ubi(versions, mp(x2, inf))].second - 1;
+			int t = pst.query(version_right, y1, y2);
+
+			// x1 보다 같거나 큰 버전들 중 가장 먼저 나오는 것의 바로 이전 버전
+			int version_left = versions[lbi(versions, mp(x1, -inf))].second - 1;
+			t -= pst.query(version_left, y1, y2);
+			ans += t;
+		}
+		res.push_back(ans);
+	}
+	for(const auto& ele : res) cout << ele << "\n";
+	return 0;
+}
+    \end{minted}
+    \subsection{merge sort tree}
+    \begin{minted}{cpp}
+// merge-sort tree
+// main 함수는 boj 13544 수열과 쿼리 3
+#include <bits/stdc++.h>
+using namespace std;
+typedef long long ll;
+
+const int MAX_ST = 1 << 18;
+
+// 머지 소트 트리
+template<typename ValueType>
+struct MergesortTree {
+    vector<ValueType> arr[MAX_ST];
+
+    void construct() {
+        for(int i = MAX_ST/2-1; i > 0; i--) {
+            vector<ValueType> &c = arr[i], &l = arr[i*2], &r = arr[i*2+1];
+            arr[i].resize(l.size()+r.size());
+            for(int j = 0, p = 0, q = 0; j < c.size(); ++j) {
+                if(q == r.size() || (p < l.size() && l[p] < r[q])) c[j] = l[p++];
+                else c[j] = r[q++];
+            }
+        }
+    }
+
+    int greater(int s, int e, int k, int node = 1, int ns = 0, int ne = MAX_ST / 2) {
+        if(ne <= s || e <= ns) return 0;
+        if(s <= ns && ne <= e)
+            return arr[node].end() - upper_bound(arr[node].begin(), arr[node].end(), k);
+        int mid = (ns + ne) / 2;
+        return greater(s, e, k, node * 2, ns, mid) + greater(s, e, k, node * 2 + 1, mid, ne);
+    }
+};
+
+int main() {
+    ios_base::sync_with_stdio(false); cin.tie(nullptr);
+
+    int N, M, L = 0;
+    MergesortTree<ll> ST;
+
+    cin >> N;
+    for(int i = 0; i < N; i++) {
+        ll val; cin >> val;
+        ST.arr[MAX_ST / 2 + i].push_back(val);
+    }
+
+    ST.construct();
+
+    cin >> M;
+    for(int i = 0; i < M; i++) {
+        ll s, e, k; cin >> s >> e >> k;
+        cout << (L = ST.greater((s^L) - 1, e^L, k^L)) << "\n";
+    }
+    return 0;
+}
+    \end{minted}
+    \subsection{ETT}
+    \begin{minted}{cpp}
+// ETT(Euler-Tour-Technique) + fenw, 쿼리개수 Q, 노드개수 N -> O(N + QlogN)
+// 트리에서 세그먼트/fenw 사용 가능. -> by ETT dfs numbering
+// p a x가 주어진 경우 a의 모든 부하의 월급을 x만큼 증가시킨다. (-10,000 ≤ x ≤ 10,000), u a가 주어진 경우에는 a의 월급을 출력한다.
+#include <bits/stdc++.h>
+using namespace std;
+typedef vector<int> vi;
+typedef vector<vector<int>> vvi;
+int n, m;
+vi a, par, in, out;
+vvi edges;
+
+int dfsn = 0;
+template<typename ValueType>
+struct fenwick {
+    int n;
+    vector<ValueType> tree;
+    fenwick(int n) : n(n) { tree.resize(n + 1); }
+    ValueType sum(int i) {
+        ValueType ret = 0;
+        for (; i; i -= i & -i) ret += tree[i];
+        return ret;
+    }
+    void update(int i, ValueType x) { for (i++; i <= n; i += i & -i) tree[i] += x; }
+    ValueType query(int l, int r) { return l > r ? 0 : sum(r + 1) - sum(l); }
+};
+template<typename ValueType>
+struct fenwick_point {
+    fenwick<ValueType> f;
+    fenwick_point(int n) : f(fenwick<ValueType>(n + 1)) {}
+    void update(int l, int r, ValueType x) { f.update(l, x), f.update(r + 1, -x); }
+    ValueType query(int i) { return f.query(0, i); }
+};
+
+// dfs ordering
+void dfs(int i) {
+    in[i] = dfsn++;
+    for (int child: edges[i]) {
+        dfs(child);
+    }
+    out[i] = dfsn - 1;
+}
+
+int main() {
+    ios_base::sync_with_stdio(false); cin.tie(nullptr);
+    cin >> n >> m;
+    a.resize(n); edges.resize(n);
+    in.resize(n); out.resize(n);
+
+    for (int i = 0; i < n; i++) {
+        int x, p;
+        cin >> x;
+        if (i) cin >> p;
+        a[i] = x;
+        if (i)
+            edges[p - 1].push_back(i);
+    }
+
+    // ETT 먼저 하고 fenw 적용해야함.
+    dfs(0);
+    fenwick_point<int> fw(n);
+    for (int i = 0; i < n; i++) {
+        fw.update(in[i], in[i], a[i]);
+    }
+
+    for (int i = 0; i < m; i++) {
+        string cmd;
+        cin >> cmd;
+        if (cmd == "p") {
+            int k, x;
+            cin >> k >> x, k--;
+            // 자기 자신은 제외하고 업데이트 해야 한다.
+            fw.update(in[k] + 1, out[k], x);
+        } else {
+            int k;
+            cin >> k, k--;
+            cout << fw.query(in[k]) << "\n";
+        }
+    }
+    return 0;
+}
+    \end{minted}
+    \subsection{HLD}
+    \begin{minted}{cpp}
+// O(log^2 N),
+// update(v, w) -> 정점 v의 가중치에 w를 더함, query(s, e) -> s->e 경로의 모든 정점의 가중치의 합(변경가능) 출력.
+// "트리" 에서 이 작업을 수행.
+#include <bits/stdc++.h>
+using namespace std;
+
+vector<int> inp[101010]; //입력 / 양방향 그래프
+
+template<typename ValueType>
+struct Seg{
+    ValueType tree[1 << 18];
+    ValueType sz = 1 << 17;
+
+    void update(int x, ValueType v){
+        x |= sz; tree[x] += v;
+        while(x >>= 1){
+            tree[x] = tree[x << 1] + tree[x << 1 | 1];
+        }
+    }
+
+    ValueType query(int l, int r){
+        l |= sz, r |= sz;
+        ValueType ret = 0;
+        while(l <= r){
+            if(l & 1) ret += tree[l++];
+            if(~r & 1) ret += tree[r--];
+            l >>= 1, r >>= 1;
+        }
+        return ret;
+    }
+};
+
+template<typename ValueType>
+struct HLD {
+    ValueType sz[101010], dep[101010], par[101010], top[101010], in[101010], out[101010];
+    vector<ValueType> g[101010];
+    Seg<int> seg;
+
+    ValueType chk[101010];
+    void dfs(int v = 1) {
+        chk[v] = 1;
+        for(auto i : inp[v]) {
+            if(chk[i]) continue;
+            chk[i] = 1;
+            g[v].push_back(i);
+            dfs(i);
+        }
+    }
+
+    void dfs1(int v = 1) {
+        sz[v] = 1;
+        for(auto &i : g[v]) {
+            dep[i] = dep[v] + 1; par[i] = v;
+            dfs1(i); sz[v] += sz[i];
+            if(sz[i] > sz[g[v][0]]) swap(i, g[v][0]);
+        }
+    }
+
+    ValueType pv;
+    void dfs2(int v = 1) {
+        in[v] = ++pv;
+        for(auto i : g[v]) {
+            top[i] = i == g[v][0] ? top[v] : i;
+            dfs2(i);
+        }
+        out[v] = pv;
+    }
+
+    void update(int v, ValueType w) {
+        seg.update(in[v], w);
+    }
+
+    ValueType query(int a, int b) {
+        ValueType ret = 0;
+        while(top[a] ^ top[b]) {
+            if(dep[top[a]] < dep[top[b]]) swap(a, b);
+            ValueType st = top[a];
+            ret += seg.query(in[st], in[a]);
+            a = par[st];
+        }
+        if(dep[a] > dep[b]) swap(a, b);
+        ret += seg.query(in[a], in[b]);
+        return ret;
+    }
+};
+
+int main() {
+    ios_base::sync_with_stdio(false); cin.tie(nullptr);
+    int n, q; cin >> n >> q; //정점 개수, 쿼리 개수
+    HLD<int> hld;
+    // 간선정보 입력
+    for(int i = 1; i < n; i++) {
+        int s, e; cin >> s >> e;
+        inp[s].push_back(e);
+        inp[e].push_back(s);
+    }
+    hld.dfs(); hld.dfs1(); hld.dfs2();
+    while(q--) {
+        //1 v w : update v w
+        //2 s e : query s e
+        int op, a, b; cin >> op >> a >> b;
+        if(op == 1) hld.update(a, b);
+        else cout << hld.query(a, b) << "\n";
+    }
+}
+    \end{minted}
+    \subsection{금광seg}
+    \begin{minted}{cpp}
+// ITMO pilot course segTree pt1, step2 #1
+// https://codeforces.com/edu/course/2/lesson/4/2/practice/contest/273278/problem/A
+// boj 16993 연속합과 쿼리 도 참고하자.
+#include <bits/stdc++.h>
+using namespace std;
+typedef long long ll;
+
+template <typename ValueType, typename IndexType>
+struct GoldenSeg {
+    vector<ValueType> arr, pref, suff, ans, sum;
+    ValueType n;
+
+    GoldenSeg(const vector<ValueType>& input) {
+        n = input.size();
+        arr = input;
+        pref = sum = ans = suff = vector<ValueType>(n * 4);
+        build(1, 0, n - 1);
+    }
+
+    void build(IndexType i, IndexType tl, IndexType tr) {
+        if (tl == tr) {
+            suff[i] = ans[i] = pref[i] = max((ValueType)0, arr[tl]);
+            sum[i] = arr[tl];
+        } else {
+            IndexType tm = (tl + tr) / 2;
+            build(i * 2, tl, tm);
+            build(i * 2 + 1, tm + 1, tr);
+            ans[i] = max(ans[i * 2], max(ans[i * 2 + 1], suff[i * 2] + pref[i * 2 + 1]));
+            pref[i] = max(pref[i * 2], sum[i * 2] + pref[i * 2 + 1]);
+            suff[i] = max(suff[i * 2 + 1], sum[i * 2 + 1] + suff[i * 2]);
+            sum[i] = sum[i * 2] + sum[i * 2 + 1];
+        }
+    }
+
+    void update(IndexType i, IndexType tl, IndexType tr, IndexType p) {
+        if (tl == tr) {
+            suff[i] = ans[i] = pref[i] = max((ValueType)0, arr[tl]);
+            sum[i] = arr[tl];
+        } else {
+            IndexType tm = (tl + tr) / 2;
+            if (tm >= p) update(i * 2, tl, tm, p);
+            else update(i * 2 + 1, tm + 1, tr, p);
+
+            ans[i] = max(ans[i * 2], max(ans[i * 2 + 1], suff[i * 2] + pref[i * 2 + 1]));
+            pref[i] = max(pref[i * 2], sum[i * 2] + pref[i * 2 + 1]);
+            suff[i] = max(suff[i * 2 + 1], sum[i * 2 + 1] + suff[i * 2]);
+            sum[i] = sum[i * 2] + sum[i * 2 + 1];
+        }
+    }
+
+    void update(IndexType idx, ValueType val) {
+        arr[idx] = val;
+        update(1, 0, n - 1, idx);
+    }
+    struct Result {
+        ValueType ans, pref, suff, sum;
+    };
+
+    Result merge(const Result &left, const Result &right) {
+        Result res;
+        res.ans = max({left.ans, right.ans, left.suff + right.pref});
+        res.pref = max(left.pref, left.sum + right.pref);
+        res.suff = max(right.suff, right.sum + left.suff);
+        res.sum = left.sum + right.sum;
+        return res;
+    }
+
+    Result query(IndexType i, IndexType tl, IndexType tr, IndexType l, IndexType r) {
+        if (l > r) {
+            return {numeric_limits<IndexType>::min(), numeric_limits<IndexType>::min(), numeric_limits<IndexType>::min(), 0};
+        }
+        if (tl == l && tr == r) {
+            return {ans[i], pref[i], suff[i], sum[i]};
+        }
+        IndexType tm = (tl + tr) / 2;
+        return merge(query(i * 2, tl, tm, l, min(r, tm)),
+                     query(i * 2 + 1, tm + 1, tr, max(l, tm + 1), r));
+    }
+    Result query(IndexType l, IndexType r) {
+        return query(1, 0, n - 1, l, r);
+    }
+};
+
+int main() {
+    ios_base::sync_with_stdio(false); cin.tie(nullptr);
+    ll n, m; cin >> n >> m;
+    vector<ll> input(n);
+    for (auto &x : input) cin >> x;
+
+    GoldenSeg<ll, int> segTree(input);
+    cout << segTree.query(0, n - 1).ans << "\n";
+
+    while (m--) {
+        ll x, y; cin >> x >> y;
+        segTree.update(x, y);
+        cout << segTree.query(0, n - 1).ans << "\n";
+    }
+    return 0;
+}
+    \end{minted}
