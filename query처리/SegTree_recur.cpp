@@ -1,5 +1,5 @@
 // SegTree, 0-based index
-// 쿼리개수 Q, O(QlogN)
+// 쿼리개수 Q 배열길이 N, O(QlogN)
 // main 함수 사용예시는 boj 2042, 224ms AC
 #include <bits/stdc++.h>
 using namespace std;
@@ -28,10 +28,12 @@ struct Seg {
         return segmentTree[node] = makeSegmentTree(node * 2, start, mid) + makeSegmentTree(node * 2 + 1, mid + 1, end);
     }
 
-    // 인덱스 idx의 값을, diff만큼 업데이트한다. 
+    // 인덱스 idx의 값을, diff만큼 업데이트한다.
     void updateSegmentTree(IndexType node, IndexType start, IndexType end, IndexType idx, ValueType diff) {
+        // 현재 노드가 나타내는 구간에 idx가 포함되지 않는 경우 -> skip 하고, 포함되는 노드가 하나라도 있으면, 업데이트.
         if (idx < start || idx > end) return;
         segmentTree[node] += diff;
+        // 업데이트했는데 leaf가 아니면, 재귀적으로 leaf 까지 내려가면서 update.
         if (start != end) {
             IndexType mid = (start + end) / 2;
             updateSegmentTree(node * 2, start, mid, idx, diff);
