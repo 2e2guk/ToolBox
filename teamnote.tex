@@ -461,7 +461,7 @@ vector<pi> solve(int n){ // i - j cut : i - j minimum edge cost. 0 based.
 }
 \end{minted}
 \section{문자열}
-\subsection {2-SAT}
+\subsection {KMP + Trie}
 \begin{minted}{cpp}
 strongly_connected scc;
 int n; // = number of clauses
@@ -483,7 +483,7 @@ bool satisfy(vector<bool> &res){
 	return 1;
 }
 \end{minted}
-\subsection {BCC}
+\subsection {Manacher + Z}
 \begin{minted}{cpp}
 void color(int x, int p){
 	if(p){
@@ -501,7 +501,7 @@ void color(int x, int p){
 	}
 }
 \end{minted}
-\subsection{Splay Tree + Link-Cut Tree}
+\subsection{Suffix Array + Aho-Corasick}
 \begin{minted}{cpp}
 // Checklist 1. Is it link cut, or splay?
 // Checklist 2. In link cut, is son always root?
@@ -618,7 +618,7 @@ void cut(node *p){
 	pull(p);
 }
 \end{minted}
-\subsection{Offline Dynamic MST}
+\subsection{Rabin-Karp}
 \begin{minted}{cpp}
 int n, m, q;
 int st[MAXN], ed[MAXN], cost[MAXN], chk[MAXN];
@@ -693,223 +693,8 @@ int main(){
 	solve(0, q-1, ve, 0);
 }
 \end{minted}
-\subsection {Dominator Tree}
-\begin{minted}{cpp}
-vector<int> E[MAXN], RE[MAXN], rdom[MAXN];
-
-int S[MAXN], RS[MAXN], cs;
-int par[MAXN], val[MAXN], sdom[MAXN], rp[MAXN], dom[MAXN];
-
-void clear(int n) {
-	cs = 0;
-	for(int i=0;i<=n;i++) {
-		par[i] = val[i] = sdom[i] = rp[i] = dom[i] = S[i] = RS[i] = 0;
-		E[i].clear(); RE[i].clear(); rdom[i].clear();
-	}
-}
-void add_edge(int x, int y) { E[x].push_back(y); }
-void Union(int x, int y) { par[x] = y; }
-int Find(int x, int c = 0) {
-	if(par[x] == x) return c ? -1 : x;
-	int p = Find(par[x], 1);
-	if(p == -1) return c ? par[x] : val[x];
-	if(sdom[val[x]] > sdom[val[par[x]]]) val[x] = val[par[x]];
-	par[x] = p;
-	return c ? p : val[x];
-}
-void dfs(int x) {
-	RS[ S[x] = ++cs ] = x;
-	par[cs] = sdom[cs] = val[cs] = cs;
-	for(int e : E[x]) {
-		if(S[e] == 0) dfs(e), rp[S[e]] = S[x];
-		RE[S[e]].push_back(S[x]);
-	}
-}
-int solve(int s, int *up) { // Calculate idoms
-	dfs(s);
-	for(int i=cs;i;i--) {
-		for(int e : RE[i]) sdom[i] = min(sdom[i], sdom[Find(e)]);
-		if(i > 1) rdom[sdom[i]].push_back(i);
-		for(int e : rdom[i]) {
-			int p = Find(e);
-			if(sdom[p] == i) dom[e] = i;
-			else dom[e] = p;
-		}
-		if(i > 1) Union(i, rp[i]);
-	}
-	for(int i=2;i<=cs;i++) if(sdom[i] != dom[i]) dom[i] = dom[dom[i]];
-	for(int i=2;i<=cs;i++) up[RS[i]] = RS[dom[i]];
-	return cs;
-}
-\end{minted}
-\subsection {Global Min-Cut}
-\begin{minted}{cpp}
-int minimum_cut_phase(int n, int &s, int &t, vector<vector<int>> &adj, vector<int> vis){
-	vector<int> dist(n);
-	int mincut = 1e9;
-	while(true){
-		int pos = -1, cur = -1e9;
-		for(int i=0; i<n; i++){
-			if(!vis[i] && dist[i] > cur){
-				cur = dist[i];
-				pos = i;
-			}
-		}
-		if(pos == -1) break;
-		s = t;
-		t = pos;
-		mincut = cur;
-		for(int i=0; i<n; i++){
-			if(!vis[i]) dist[i] += adj[pos][i];
-		}
-	}
-	return mincut; // optimal s-t cut here is, {t} and V \ {t}
-}
-int solve(int n, vector<vector<int>> adj){
-	if(n <= 1) return 0;
-	vector<int> vis(n);
-	int ans = 1e9;
-	for(int i=0; i<n-1; i++){
-		int s, t;
-		ans = min(ans, minimum_cut_phase(n, s, t, adj, vis));
-		vis[t] = 1;
-		for(int j=0; j<n; j++){
-			if(!vis[j]){
-				adj[s][j] += adj[t][j];
-				adj[j][s] += adj[j][t];
-			}
-		}
-		adj[s][s] = 0;
-	}
-	return ans;
-}
-\end{minted}
-\subsection {Edmond's Directed MST}
-\revised
-\begin{minted}{cpp}
-// starts from node 0. assumes there exists at least one dmst.
-// edge is reversed : if there is edge s -> e, INSERT IN gph[e]
-struct edge { int to, cost, id; };
-using elist = vector<edge>;
-void dmst(vector<elist> &g, vector<int>& res) {
-	const int n = g.size();
-	vector<edge*> to(n);
-	vector<int> u(n, 0);
-	for (int i = 1; i < n; ++i) {
-		int mn = g[i][0].cost;
-		for (int j = 0; j < g[i].size(); ++j)
-			mn = min(mn, g[i][j].cost);
-		for (int j = 0; j < g[i].size(); ++j) {
-			if (g[i][j].cost == mn)
-				to[i] = &g[i][j];
-			g[i][j].cost -= mn;
-		}
-	}
-	for (int i = 1; i < n; ++i) {
-		if (u[i]) continue;
-		int x = i;
-		vector<int> order(1, x);
-		u[x] = 1;
-		while (to[x]->to > 0 && u[to[x]->to] == 0) {
-			x = to[x]->to;
-			u[x] = 1;
-			order.push_back(x);
-		}
-		int y = to[x]->to;
-		vector<int> cycle(find(order.begin(), order.end(), y), order.end());
-		if (cycle.size() == 0) continue;
-		vector<int> in_cycle(n);
-		for (int j = 0; j < cycle.size(); ++j) in_cycle[cycle[j]] = 1;
-		vector<int> nw_id(n);
-		for (int j = 1; j < n; ++j) nw_id[j] = nw_id[j - 1] + !in_cycle[j];
-		int nn = n - cycle.size();
-		vector<elist> gn(nn + 1);
-		for (int j = 1; j < n; ++j) {
-			if (in_cycle[j]) {
-				for (int k = 0; k < g[j].size(); ++k)
-					if (!in_cycle[g[j][k].to])
-						gn[nn].push_back({nw_id[g[j][k].to], g[j][k].cost, g[j][k].id});
-			} else {
-				for (int k = 0; k < g[j].size(); ++k)
-					if (in_cycle[g[j][k].to])
-						gn[nw_id[j]].push_back({nn, g[j][k].cost, g[j][k].id});
-					else
-						gn[nw_id[j]].push_back({nw_id[g[j][k].to], g[j][k].cost, g[j][k].id});
-			}
-		}
-		dmst(gn, res);
-		set<int> used_e(res.begin(), res.end());
-		for (int j = 0; j < cycle.size(); ++j) {
-			bool found = false;
-			for (int k = 0; k < g[cycle[j]].size(); ++k)
-				found |= used_e.count(g[cycle[j]][k].id);
-			if (found) {
-				for (int k = 0; k < cycle.size(); ++k) {
-					if (k != j)
-						res.push_back(to[cycle[k]]->id);
-				}
-				return;
-			}
-		}
-	}
-	for (int i = 1; i < n; ++i) res.push_back(to[i]->id);
-}
-\end{minted}
-\subsection {Vizing's Theorem}
-\begin{minted}{cpp}
-namespace Vizing{ // returns edge coloring in adjacent matrix G. 1 - based
-	int C[MAXN][MAXN], G[MAXN][MAXN];
-	void clear(int N){
-		for(int i=0; i<=N; i++){
-			for(int j=0; j<=N; j++) C[i][j] = G[i][j] = 0;
-		}
-	}
-	void solve(vector<pi> &E, int N, int M){
-		int X[MAXN] = {}, a;
-		auto update = [&](int u){ for(X[u] = 1; C[u][X[u]]; X[u]++); };
-		auto color = [&](int u, int v, int c){
-			int p = G[u][v];
-			G[u][v] = G[v][u] = c;
-			C[u][c] = v; C[v][c] = u;
-			C[u][p] = C[v][p] = 0;
-			if( p ) X[u] = X[v] = p;
-			else update(u), update(v);
-			return p; 
-		};
-		auto flip = [&](int u, int c1, int c2){
-			int p = C[u][c1];
-			swap(C[u][c1], C[u][c2]);
-			if( p ) G[u][p] = G[p][u] = c2;
-			if( !C[u][c1] ) X[u] = c1;
-			if( !C[u][c2] ) X[u] = c2;
-			return p; 
-		};
-		for(int i = 1; i <= N; i++) X[i] = 1;
-		for(int t = 0; t < E.size(); t++){
-			int u = E[t].first, v0 = E[t].second, v = v0, c0 = X[u], c = c0, d;
-			vector<pi> L;
-			int vst[MAXN] = {};
-			while(!G[u][v0]){
-				L.emplace_back(v, d = X[v]);
-				if(!C[v][c]) for(a = (int)L.size()-1; a >= 0; a--) c = color(u, L[a].first, c);
-				else if(!C[u][d])for(a=(int)L.size()-1;a>=0;a--)color(u,L[a].first,L[a].second);
-				else if( vst[d] ) break;
-				else vst[d] = 1, v = C[u][d];
-			}
-			if( !G[u][v0] ){
-				for(;v; v = flip(v, c, d), swap(c, d));
-				if(C[u][c0]){
-					for(a = (int)L.size()-2; a >= 0 && L[a].second != c; a--);
-					for(; a >= 0; a--) color(u, L[a].first, L[a].second);
-				} else t--;
-			}
-		}
-	}
-}
-\end{minted}
-
 \section{그래프}
-\subsection{Aho-Corasick Algorithm}
+\subsection{SCC}
 \begin{minted}{cpp}
 const int MAXN = 100005, MAXC = 26;
 int trie[MAXN][MAXC], fail[MAXN], term[MAXN], piv;
@@ -955,7 +740,7 @@ bool query(string &s){
 	return 0;
 }
 \end{minted}
-\subsection{Suffix Array}
+\subsection{BCC (단절점)}
 \begin{minted}{cpp}
 const int MAXN = 500005;
 int ord[MAXN], nord[MAXN], cnt[MAXN], aux[MAXN];
@@ -1002,7 +787,7 @@ void solve(int n, char *str, int *sfx, int *rev, int *lcp){
 	}
 }
 \end{minted}
-\subsection{Manacher's Algorithm}
+\subsection{LCA}
 \begin{minted}{cpp}
 const int MAXN = 1000005;
 int aux[2 * MAXN - 1];
@@ -1028,7 +813,7 @@ void solve(int n, int *str, int *ret){
 }
 \end{minted}
 
-\subsection{Suffix Array (Linear time)}
+\subsection{SPFA}
 \revised
 \begin{minted}{cpp}
 class SuffixArray {
@@ -1101,7 +886,7 @@ public:
 }sa;
 \end{minted}
 
-\subsection{eertree}
+\subsection{이분매칭 (hopcroft-karp)}
 \begin{minted}{cpp}
 int nxt[MAXN][26];
 int par[MAXN], len[MAXN], slink[MAXN], ptr[MAXN], diff[MAXN], series[MAXN], piv;
@@ -1172,7 +957,229 @@ vector<pi> minimum_partition(int n){ // (odd min, even min)
 	return dp;
 }
 \end{minted}
-\subsection{Circular LCS}
+\subsection{최대유량 (디닉)}
+\begin{minted}{cpp}
+string s1, s2;
+int dp[4005][2005];
+int nxt[4005][2005];
+int n, m;
+void reroot(int px){
+	int py = 1;
+	while(py <= m && nxt[px][py] != 2) py++;
+	nxt[px][py] = 1;
+	while(px < 2 * n && py < m){
+		if(nxt[px+1][py] == 3){
+			px++;
+			nxt[px][py] = 1;
+		}
+		else if(nxt[px+1][py+1] == 2){
+			px++;
+			py++;
+			nxt[px][py] = 1;
+		}
+		else py++;
+	}
+	while(px < 2 * n && nxt[px+1][py] == 3){
+		px++;
+		nxt[px][py] = 1;
+	}
+}
+
+int track(int x, int y, int e){ // use this routine to find LCS as string
+	int ret = 0;
+	while(y != 0 && x != e){
+		if(nxt[x][y] == 1) y--;
+		else if(nxt[x][y] == 2) ret += (s1[x] == s2[y]), x--, y--;
+		else if(nxt[x][y] == 3) x--;
+	}
+	return ret;
+}
+
+int solve(string a, string b){
+	n = a.size(), m = b.size();
+	s1 = "#" + a + a;
+	s1 = '#' + b;
+	for(int i=0; i<=2*n; i++){
+		for(int j=0; j<=m; j++){
+			if(j == 0){
+				nxt[i][j] = 3;
+				continue;
+			}
+			if(i == 0){
+				nxt[i][j] = 1;
+				continue;
+			}
+			dp[i][j] = -1;
+			if(dp[i][j] < dp[i][j-1]){
+				dp[i][j] = dp[i][j-1];
+				nxt[i][j] = 1;
+			}
+			if(dp[i][j] < dp[i-1][j-1] + (s1[i] == s2[j])){
+				dp[i][j] = dp[i-1][j-1] + (s1[i] == s2[j]);
+				nxt[i][j] = 2;
+			}
+			if(dp[i][j] < dp[i-1][j]){
+				dp[i][j] = dp[i-1][j];
+				nxt[i][j] = 3;
+			}
+		}
+	}
+	int ret = dp[n][m];
+	for(int i=1; i<n; i++){
+		reroot(i), ret = max(ret, track(n+i, m, i));
+	}
+	return ret;
+}
+\end{minted}
+\subsection{MCMF}
+\begin{minted}{cpp}
+string s1, s2;
+int dp[4005][2005];
+int nxt[4005][2005];
+int n, m;
+void reroot(int px){
+	int py = 1;
+	while(py <= m && nxt[px][py] != 2) py++;
+	nxt[px][py] = 1;
+	while(px < 2 * n && py < m){
+		if(nxt[px+1][py] == 3){
+			px++;
+			nxt[px][py] = 1;
+		}
+		else if(nxt[px+1][py+1] == 2){
+			px++;
+			py++;
+			nxt[px][py] = 1;
+		}
+		else py++;
+	}
+	while(px < 2 * n && nxt[px+1][py] == 3){
+		px++;
+		nxt[px][py] = 1;
+	}
+}
+
+int track(int x, int y, int e){ // use this routine to find LCS as string
+	int ret = 0;
+	while(y != 0 && x != e){
+		if(nxt[x][y] == 1) y--;
+		else if(nxt[x][y] == 2) ret += (s1[x] == s2[y]), x--, y--;
+		else if(nxt[x][y] == 3) x--;
+	}
+	return ret;
+}
+
+int solve(string a, string b){
+	n = a.size(), m = b.size();
+	s1 = "#" + a + a;
+	s1 = '#' + b;
+	for(int i=0; i<=2*n; i++){
+		for(int j=0; j<=m; j++){
+			if(j == 0){
+				nxt[i][j] = 3;
+				continue;
+			}
+			if(i == 0){
+				nxt[i][j] = 1;
+				continue;
+			}
+			dp[i][j] = -1;
+			if(dp[i][j] < dp[i][j-1]){
+				dp[i][j] = dp[i][j-1];
+				nxt[i][j] = 1;
+			}
+			if(dp[i][j] < dp[i-1][j-1] + (s1[i] == s2[j])){
+				dp[i][j] = dp[i-1][j-1] + (s1[i] == s2[j]);
+				nxt[i][j] = 2;
+			}
+			if(dp[i][j] < dp[i-1][j]){
+				dp[i][j] = dp[i-1][j];
+				nxt[i][j] = 3;
+			}
+		}
+	}
+	int ret = dp[n][m];
+	for(int i=1; i<n; i++){
+		reroot(i), ret = max(ret, track(n+i, m, i));
+	}
+	return ret;
+}
+\end{minted}
+\subsection{Circulation}
+\begin{minted}{cpp}
+string s1, s2;
+int dp[4005][2005];
+int nxt[4005][2005];
+int n, m;
+void reroot(int px){
+	int py = 1;
+	while(py <= m && nxt[px][py] != 2) py++;
+	nxt[px][py] = 1;
+	while(px < 2 * n && py < m){
+		if(nxt[px+1][py] == 3){
+			px++;
+			nxt[px][py] = 1;
+		}
+		else if(nxt[px+1][py+1] == 2){
+			px++;
+			py++;
+			nxt[px][py] = 1;
+		}
+		else py++;
+	}
+	while(px < 2 * n && nxt[px+1][py] == 3){
+		px++;
+		nxt[px][py] = 1;
+	}
+}
+
+int track(int x, int y, int e){ // use this routine to find LCS as string
+	int ret = 0;
+	while(y != 0 && x != e){
+		if(nxt[x][y] == 1) y--;
+		else if(nxt[x][y] == 2) ret += (s1[x] == s2[y]), x--, y--;
+		else if(nxt[x][y] == 3) x--;
+	}
+	return ret;
+}
+
+int solve(string a, string b){
+	n = a.size(), m = b.size();
+	s1 = "#" + a + a;
+	s1 = '#' + b;
+	for(int i=0; i<=2*n; i++){
+		for(int j=0; j<=m; j++){
+			if(j == 0){
+				nxt[i][j] = 3;
+				continue;
+			}
+			if(i == 0){
+				nxt[i][j] = 1;
+				continue;
+			}
+			dp[i][j] = -1;
+			if(dp[i][j] < dp[i][j-1]){
+				dp[i][j] = dp[i][j-1];
+				nxt[i][j] = 1;
+			}
+			if(dp[i][j] < dp[i-1][j-1] + (s1[i] == s2[j])){
+				dp[i][j] = dp[i-1][j-1] + (s1[i] == s2[j]);
+				nxt[i][j] = 2;
+			}
+			if(dp[i][j] < dp[i-1][j]){
+				dp[i][j] = dp[i-1][j];
+				nxt[i][j] = 3;
+			}
+		}
+	}
+	int ret = dp[n][m];
+	for(int i=1; i<n; i++){
+		reroot(i), ret = max(ret, track(n+i, m, i));
+	}
+	return ret;
+}
+\end{minted}
+\subsection{헝가리안}
 \begin{minted}{cpp}
 string s1, s2;
 int dp[4005][2005];
@@ -1247,7 +1254,7 @@ int solve(string a, string b){
 }
 \end{minted}
 \section{구간쿼리}
-\subsection{Smallest Enclosing Circle / Sphere}
+\subsection{Seg}
 \begin{minted}{cpp}
 namespace cover_2d{
 	double eps = 1e-9;
@@ -1325,7 +1332,7 @@ namespace cover_3d{
 	}
 };
 \end{minted}
-\subsection{3D Convex Hull}
+\subsection{Lazy Seg}
 \begin{minted}{cpp}
 struct vec3{
 	ll x, y, z;
@@ -1394,7 +1401,7 @@ vector<face> get_hull(vector<vec3> &A){
 	return faces;
 }
 \end{minted}
-\subsection{Dynamic Convex Hull Trick}
+\subsection{Fenw}
 \begin{minted}{cpp}
 using line_t = double;
 const line_t is_query = -1e18;
@@ -1435,7 +1442,7 @@ struct HullDynamic : public multiset<Line> { // will maintain upper hull for max
 	}
 }H;
 \end{minted}
-\subsection{Half-plane Intersection}
+\subsection{sqrt decomposition}
 \begin{minted}{cpp}
 const double eps = 1e-8;
 typedef pair<long double, long double> pi;
@@ -1481,7 +1488,7 @@ bool solve(vector<line> v, vector<pi> &solution){ // ax + by <= c;
 	return true;
 }
 \end{minted}
-\subsection{Point-in-polygon test / Point-to-polygon tangent}
+\subsection{mo's}
 \begin{minted}{cpp}
 // C : counter_clockwise(C[0] == C[N]), N >= 3
 // return highest point in C <- P(clockwise) or -1 if strictly in P
@@ -1512,7 +1519,7 @@ int convex_tangent(vector<pi> &C, pi P, int up = 1){
 	return -1;
 }
 \end{minted}
-\subsection{kd-tree}
+\subsection{dynamic seg}
 \begin{minted}{cpp}
 typedef pair<int, int> pi;
 struct node{
@@ -1574,8 +1581,378 @@ void solve(int p, pi x){ // find closest point from point x (L^2)
 	}
 }
 \end{minted}
+\subsection{PST}
+\begin{minted}{cpp}
+string s1, s2;
+int dp[4005][2005];
+int nxt[4005][2005];
+int n, m;
+void reroot(int px){
+	int py = 1;
+	while(py <= m && nxt[px][py] != 2) py++;
+	nxt[px][py] = 1;
+	while(px < 2 * n && py < m){
+		if(nxt[px+1][py] == 3){
+			px++;
+			nxt[px][py] = 1;
+		}
+		else if(nxt[px+1][py+1] == 2){
+			px++;
+			py++;
+			nxt[px][py] = 1;
+		}
+		else py++;
+	}
+	while(px < 2 * n && nxt[px+1][py] == 3){
+		px++;
+		nxt[px][py] = 1;
+	}
+}
+
+int track(int x, int y, int e){ // use this routine to find LCS as string
+	int ret = 0;
+	while(y != 0 && x != e){
+		if(nxt[x][y] == 1) y--;
+		else if(nxt[x][y] == 2) ret += (s1[x] == s2[y]), x--, y--;
+		else if(nxt[x][y] == 3) x--;
+	}
+	return ret;
+}
+
+int solve(string a, string b){
+	n = a.size(), m = b.size();
+	s1 = "#" + a + a;
+	s1 = '#' + b;
+	for(int i=0; i<=2*n; i++){
+		for(int j=0; j<=m; j++){
+			if(j == 0){
+				nxt[i][j] = 3;
+				continue;
+			}
+			if(i == 0){
+				nxt[i][j] = 1;
+				continue;
+			}
+			dp[i][j] = -1;
+			if(dp[i][j] < dp[i][j-1]){
+				dp[i][j] = dp[i][j-1];
+				nxt[i][j] = 1;
+			}
+			if(dp[i][j] < dp[i-1][j-1] + (s1[i] == s2[j])){
+				dp[i][j] = dp[i-1][j-1] + (s1[i] == s2[j]);
+				nxt[i][j] = 2;
+			}
+			if(dp[i][j] < dp[i-1][j]){
+				dp[i][j] = dp[i-1][j];
+				nxt[i][j] = 3;
+			}
+		}
+	}
+	int ret = dp[n][m];
+	for(int i=1; i<n; i++){
+		reroot(i), ret = max(ret, track(n+i, m, i));
+	}
+	return ret;
+}
+\end{minted}
+\subsection{merge sort tree}
+\begin{minted}{cpp}
+string s1, s2;
+int dp[4005][2005];
+int nxt[4005][2005];
+int n, m;
+void reroot(int px){
+	int py = 1;
+	while(py <= m && nxt[px][py] != 2) py++;
+	nxt[px][py] = 1;
+	while(px < 2 * n && py < m){
+		if(nxt[px+1][py] == 3){
+			px++;
+			nxt[px][py] = 1;
+		}
+		else if(nxt[px+1][py+1] == 2){
+			px++;
+			py++;
+			nxt[px][py] = 1;
+		}
+		else py++;
+	}
+	while(px < 2 * n && nxt[px+1][py] == 3){
+		px++;
+		nxt[px][py] = 1;
+	}
+}
+
+int track(int x, int y, int e){ // use this routine to find LCS as string
+	int ret = 0;
+	while(y != 0 && x != e){
+		if(nxt[x][y] == 1) y--;
+		else if(nxt[x][y] == 2) ret += (s1[x] == s2[y]), x--, y--;
+		else if(nxt[x][y] == 3) x--;
+	}
+	return ret;
+}
+
+int solve(string a, string b){
+	n = a.size(), m = b.size();
+	s1 = "#" + a + a;
+	s1 = '#' + b;
+	for(int i=0; i<=2*n; i++){
+		for(int j=0; j<=m; j++){
+			if(j == 0){
+				nxt[i][j] = 3;
+				continue;
+			}
+			if(i == 0){
+				nxt[i][j] = 1;
+				continue;
+			}
+			dp[i][j] = -1;
+			if(dp[i][j] < dp[i][j-1]){
+				dp[i][j] = dp[i][j-1];
+				nxt[i][j] = 1;
+			}
+			if(dp[i][j] < dp[i-1][j-1] + (s1[i] == s2[j])){
+				dp[i][j] = dp[i-1][j-1] + (s1[i] == s2[j]);
+				nxt[i][j] = 2;
+			}
+			if(dp[i][j] < dp[i-1][j]){
+				dp[i][j] = dp[i-1][j];
+				nxt[i][j] = 3;
+			}
+		}
+	}
+	int ret = dp[n][m];
+	for(int i=1; i<n; i++){
+		reroot(i), ret = max(ret, track(n+i, m, i));
+	}
+	return ret;
+}
+\end{minted}
+\subsection{ETT}
+\begin{minted}{cpp}
+string s1, s2;
+int dp[4005][2005];
+int nxt[4005][2005];
+int n, m;
+void reroot(int px){
+	int py = 1;
+	while(py <= m && nxt[px][py] != 2) py++;
+	nxt[px][py] = 1;
+	while(px < 2 * n && py < m){
+		if(nxt[px+1][py] == 3){
+			px++;
+			nxt[px][py] = 1;
+		}
+		else if(nxt[px+1][py+1] == 2){
+			px++;
+			py++;
+			nxt[px][py] = 1;
+		}
+		else py++;
+	}
+	while(px < 2 * n && nxt[px+1][py] == 3){
+		px++;
+		nxt[px][py] = 1;
+	}
+}
+
+int track(int x, int y, int e){ // use this routine to find LCS as string
+	int ret = 0;
+	while(y != 0 && x != e){
+		if(nxt[x][y] == 1) y--;
+		else if(nxt[x][y] == 2) ret += (s1[x] == s2[y]), x--, y--;
+		else if(nxt[x][y] == 3) x--;
+	}
+	return ret;
+}
+
+int solve(string a, string b){
+	n = a.size(), m = b.size();
+	s1 = "#" + a + a;
+	s1 = '#' + b;
+	for(int i=0; i<=2*n; i++){
+		for(int j=0; j<=m; j++){
+			if(j == 0){
+				nxt[i][j] = 3;
+				continue;
+			}
+			if(i == 0){
+				nxt[i][j] = 1;
+				continue;
+			}
+			dp[i][j] = -1;
+			if(dp[i][j] < dp[i][j-1]){
+				dp[i][j] = dp[i][j-1];
+				nxt[i][j] = 1;
+			}
+			if(dp[i][j] < dp[i-1][j-1] + (s1[i] == s2[j])){
+				dp[i][j] = dp[i-1][j-1] + (s1[i] == s2[j]);
+				nxt[i][j] = 2;
+			}
+			if(dp[i][j] < dp[i-1][j]){
+				dp[i][j] = dp[i-1][j];
+				nxt[i][j] = 3;
+			}
+		}
+	}
+	int ret = dp[n][m];
+	for(int i=1; i<n; i++){
+		reroot(i), ret = max(ret, track(n+i, m, i));
+	}
+	return ret;
+}
+\end{minted}
+\subsection{HLD}
+\begin{minted}{cpp}
+string s1, s2;
+int dp[4005][2005];
+int nxt[4005][2005];
+int n, m;
+void reroot(int px){
+	int py = 1;
+	while(py <= m && nxt[px][py] != 2) py++;
+	nxt[px][py] = 1;
+	while(px < 2 * n && py < m){
+		if(nxt[px+1][py] == 3){
+			px++;
+			nxt[px][py] = 1;
+		}
+		else if(nxt[px+1][py+1] == 2){
+			px++;
+			py++;
+			nxt[px][py] = 1;
+		}
+		else py++;
+	}
+	while(px < 2 * n && nxt[px+1][py] == 3){
+		px++;
+		nxt[px][py] = 1;
+	}
+}
+
+int track(int x, int y, int e){ // use this routine to find LCS as string
+	int ret = 0;
+	while(y != 0 && x != e){
+		if(nxt[x][y] == 1) y--;
+		else if(nxt[x][y] == 2) ret += (s1[x] == s2[y]), x--, y--;
+		else if(nxt[x][y] == 3) x--;
+	}
+	return ret;
+}
+
+int solve(string a, string b){
+	n = a.size(), m = b.size();
+	s1 = "#" + a + a;
+	s1 = '#' + b;
+	for(int i=0; i<=2*n; i++){
+		for(int j=0; j<=m; j++){
+			if(j == 0){
+				nxt[i][j] = 3;
+				continue;
+			}
+			if(i == 0){
+				nxt[i][j] = 1;
+				continue;
+			}
+			dp[i][j] = -1;
+			if(dp[i][j] < dp[i][j-1]){
+				dp[i][j] = dp[i][j-1];
+				nxt[i][j] = 1;
+			}
+			if(dp[i][j] < dp[i-1][j-1] + (s1[i] == s2[j])){
+				dp[i][j] = dp[i-1][j-1] + (s1[i] == s2[j]);
+				nxt[i][j] = 2;
+			}
+			if(dp[i][j] < dp[i-1][j]){
+				dp[i][j] = dp[i-1][j];
+				nxt[i][j] = 3;
+			}
+		}
+	}
+	int ret = dp[n][m];
+	for(int i=1; i<n; i++){
+		reroot(i), ret = max(ret, track(n+i, m, i));
+	}
+	return ret;
+}
+\end{minted}
+\subsection{금광seg}
+\begin{minted}{cpp}
+string s1, s2;
+int dp[4005][2005];
+int nxt[4005][2005];
+int n, m;
+void reroot(int px){
+	int py = 1;
+	while(py <= m && nxt[px][py] != 2) py++;
+	nxt[px][py] = 1;
+	while(px < 2 * n && py < m){
+		if(nxt[px+1][py] == 3){
+			px++;
+			nxt[px][py] = 1;
+		}
+		else if(nxt[px+1][py+1] == 2){
+			px++;
+			py++;
+			nxt[px][py] = 1;
+		}
+		else py++;
+	}
+	while(px < 2 * n && nxt[px+1][py] == 3){
+		px++;
+		nxt[px][py] = 1;
+	}
+}
+
+int track(int x, int y, int e){ // use this routine to find LCS as string
+	int ret = 0;
+	while(y != 0 && x != e){
+		if(nxt[x][y] == 1) y--;
+		else if(nxt[x][y] == 2) ret += (s1[x] == s2[y]), x--, y--;
+		else if(nxt[x][y] == 3) x--;
+	}
+	return ret;
+}
+
+int solve(string a, string b){
+	n = a.size(), m = b.size();
+	s1 = "#" + a + a;
+	s1 = '#' + b;
+	for(int i=0; i<=2*n; i++){
+		for(int j=0; j<=m; j++){
+			if(j == 0){
+				nxt[i][j] = 3;
+				continue;
+			}
+			if(i == 0){
+				nxt[i][j] = 1;
+				continue;
+			}
+			dp[i][j] = -1;
+			if(dp[i][j] < dp[i][j-1]){
+				dp[i][j] = dp[i][j-1];
+				nxt[i][j] = 1;
+			}
+			if(dp[i][j] < dp[i-1][j-1] + (s1[i] == s2[j])){
+				dp[i][j] = dp[i-1][j-1] + (s1[i] == s2[j]);
+				nxt[i][j] = 2;
+			}
+			if(dp[i][j] < dp[i-1][j]){
+				dp[i][j] = dp[i-1][j];
+				nxt[i][j] = 3;
+			}
+		}
+	}
+	int ret = dp[n][m];
+	for(int i=1; i<n; i++){
+		reroot(i), ret = max(ret, track(n+i, m, i));
+	}
+	return ret;
+}
+\end{minted}
 \section{MISC}
-\subsection{FFT / NTT}
+\subsection{nlogn LIS}
 \begin{minted}{cpp}
 typedef complex<double> base;
 void fft(vector<base> &a, bool inv){
@@ -1670,7 +2047,7 @@ vector<lint> multiply(vector<lint> &v, vector<lint> &w, lint mod){
 	return ret;
 }
 \end{minted}
-\subsection{Hell-Joseon style FFT}
+\subsection{분할정복 트릭}
 \begin{minted}{cpp}
 #include <smmintrin.h>
 #include <immintrin.h>
@@ -1735,7 +2112,7 @@ vector<int64_t> multiply(vector<int64_t>& v, vector<int64_t>& w){
 	return ret;
 }
 \end{minted}
-\subsection{NTT Polynomial Division}
+\subsection{ConvexHull Trick}
 \begin{minted}{cpp}
 vector<lint> get_inv(int n, const vector<lint> &p){
 	vector<lint> q = {ipow(p[0], mod - 2)};
@@ -1773,7 +2150,7 @@ vector<lint> poly_divide(const vector<lint> &a, const vector<lint> &b){
 	return res;
 }
 \end{minted}
-\subsection{Black Box Linear Algebra + Kitamasa}
+\subsection{삼분탐색}
 \begin{minted}{cpp}
 vector<int> berlekamp_massey(vector<int> x){
 	vector<int> ls, cur;
@@ -1892,7 +2269,7 @@ lint det(int n, vector<elem> M){
 	return sol;
 }
 \end{minted}
-\subsection{Gaussian Elimination}
+\subsection{Sparse table}
 \begin{minted}{cpp}
 int n, inv;
 vector<int> basis[505];
@@ -1935,7 +2312,7 @@ int main(){
 	cout << gyesu % mod << endl; 
 }
 \end{minted}
-\subsection{Simplex Algorithm}
+\subsection{BIG INT}
 \begin{minted}{cpp}
 using T = long double;
 const int N = 410, M = 30010;
@@ -2002,276 +2379,4 @@ int solve() {
 	return 0;
 }
 \end{minted}
-\subsection{Pentagonal Number Theorem for Partition Number Counting}
-\begin{minted}{cpp}
-vector<pair<int, int>> gp;
-lint P[MAXN+1] = {};
-gp.emplace_back(0, 0);
-for(int i = 1; gp.back().second <= MAXN; i++) {
-	gp.emplace_back(i % 2 ? 1 : -1, i * (3*i - 1) / 2);
-	gp.emplace_back(i % 2 ? 1 : -1, i * (3*i + 1) / 2);
-}
-P[1] = 1;
-for(int n = 2; n <= MAXN; n++) {
-	for(auto it : gp) if(n >= it.second) P[n] += P[n - it.second] * it.first + MOD;
-	P[n] %= MOD;
-}
-\end{minted}
-\subsection{De Bruijn Sequence}
-\begin{minted}{cpp}
-// Create cyclic string of length k^n that contains every length n string as substring. alphabet = [0, k - 1]
-int res[10000000]; // >= k^n
-int aux[10000000]; // >= k*n
-int de_bruijn(int k, int n) { // Returns size (k^n)
-	if(k == 1) {
-		res[0] = 0;
-		return 1;
-	}
-	for(int i = 0; i < k * n; i++)
-		aux[i] = 0;
-	int sz = 0;
-	function<void(int, int)> db = [&](int t, int p) {
-		if(t > n) {
-			if(n % p == 0)
-				for(int i = 1; i <= p; i++)
-					res[sz++] = aux[i];
-		}
-		else {
-			aux[t] = aux[t - p];
-			db(t + 1, p);
-			for(int i = aux[t - p] + 1; i < k; i++) {
-				aux[t] = i;
-				db(t + 1, t);
-			}
-		}
-	};
-	db(1, 1);
-	return sz;
-}
-\end{minted}
-\subsection{Discrete Kth root}
-\begin{minted}{cpp}
-/* 
- * Solve x for x^P = A mod Q
- * (P, Q-1) = 1 -> P^-1 mod (Q-1) exists
- * x has solution iff A^((Q-1) / P) = 1 mod Q
- * PP | (Q-1) -> P < sqrt(Q), solve lgQ rounds of discrete log
- * else -> find a s.t. s | (Pa - 1) -> ans = A^a */
-using LL = long long;
-LL mul(LL x, LL y, LL mod){ return (__int128) x * y % mod; }
-LL add(LL x, LL y, LL mod){ return (x + y) % mod; }
-LL pw(LL x, LL y, LL mod){
-	LL ret = 1, piv = x;
-	while(y){
-		if(y & 1) ret = mul(ret, piv, mod);
-		piv = mul(piv, piv, mod);
-		y >>= 1;
-	}
-	return ret % mod;
-}
-void gcd(LL a, LL b, LL &x, LL &y, LL &g){
-	if (b == 0) {
-		x = 1, y = 0, g = a;
-		return;
-	}
-	LL tx, ty;
-	gcd(b, a%b, tx, ty, g);
-	x = ty; y = tx - ty * (a / b);
-}
-LL P, A, Q, g; // x^P = A mod Q
-const int X = 1e5;
-LL base, ae[X], aXe[X], iaXe[X];
-unordered_map<LL, LL> ht;
-#define FOR(i, c) for (int i = 0; i < (c); ++i)
-#define REP(i, l, r) for (int i = (l); i <= (r); ++i)
-void build(LL a) { // ord(a) = P < sqrt(Q)
-	base = a;
-	ht.clear();
-	ae[0] = 1; ae[1] = a; aXe[0] = 1; aXe[1] = pw(a, X, Q);
-	iaXe[0] = 1; iaXe[1] = pw(aXe[1], Q-2, Q);
-	REP(i, 2, X-1) {
-		ae[i] = mul(ae[i-1], ae[1], Q);
-		aXe[i] = mul(aXe[i-1], aXe[1], Q);
-		iaXe[i] = mul(iaXe[i-1], iaXe[1], Q);
-	}
-	FOR(i, X) ht[ae[i]] = i;
-}
-
-LL dis_log(LL x) {
-	FOR(i, X) {
-		LL iaXi = iaXe[i];
-		LL rst = mul(x, iaXi, Q);
-		if (ht.count(rst)) return i*X + ht[rst];
-	}
-}
-LL main2() {
-		cin >> P >> A >> Q;
-	LL t = 0, s = Q-1;
-	while (s % P == 0) {
-		++t;
-		s /= P;
-	}
-	if (A == 0) return 0;
-	if (t == 0) {
-		// a^{P^-1 mod phi(Q)}
-		LL x, y, _;
-		gcd(P, Q-1, x, y, _);
-		if (x < 0) {
-			x = (x % (Q-1) + Q-1) % (Q-1);
-		}
-		LL ans = pw(A, x, Q);
-		if (pw(ans, P, Q) != A) while(1);
-		return ans;
-	}
-	// A is not P-residue
-	if (pw(A, (Q-1) / P, Q) != 1) return -1;
-	for (g = 2; g < Q; ++g) {
-		if (pw(g, (Q-1) / P, Q) != 1)
-			break;
-	}
-	LL alpha = 0;
-	{
-		LL y, _;
-		gcd(P, s, alpha, y, _);
-		if (alpha < 0) alpha = (alpha % (Q-1) + Q-1) % (Q-1);
-	}
-	if (t == 1) {
-		LL ans = pw(A, alpha, Q);
-		return ans;
-	}
-	LL a = pw(g, (Q-1) / P, Q);
-	build(a);
-	LL b = pw(A, add(mul(P%(Q-1), alpha, Q-1), Q-2, Q-1), Q);
-	LL c = pw(g, s, Q);
-	LL h = 1;
-	LL e = (Q-1) / s / P; // r^{t-1}
-	REP(i, 1, t-1) {
-		e /= P;
-		LL d = pw(b, e, Q);
-		LL j = 0;
-		if (d != 1) {
-			j = -dis_log(d);
-			if (j < 0) j = (j % (Q-1) + Q-1) % (Q-1);
-		}
-		b = mul(b, pw(c, mul(P%(Q-1), j, Q-1), Q), Q);
-		h = mul(h, pw(c, j, Q), Q);
-		c = pw(c, P, Q);
-	}
-	return mul(pw(A, alpha, Q), h, Q);
-}
-\end{minted}
-\subsection{Miller-Rabin Test + Pollard Rho Factorization}
-\begin{minted}{cpp}
-namespace miller_rabin{
-    lint mul(lint x, lint y, lint mod){ return (__int128) x * y % mod; }
-	lint ipow(lint x, lint y, lint p){
-		lint ret = 1, piv = x % p;
-		while(y){
-			if(y&1) ret = mul(ret, piv, p);
-			piv = mul(piv, piv, p);
-			y >>= 1;
-		}
-		return ret;
-	}
-	bool miller_rabin(lint x, lint a){
-		if(x % a == 0) return 0;
-		lint d = x - 1;
-		while(1){
-			lint tmp = ipow(a, d, x);
-			if(d&1) return (tmp != 1 && tmp != x-1);
-			else if(tmp == x-1) return 0;
-			d >>= 1;
-		}
-	}
-	bool isprime(lint x){
-		for(auto &i : {2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37}){
-			if(x == i) return 1;
-			if(x > 40 && miller_rabin(x, i)) return 0;
-		}
-		if(x <= 40) return 0;
-		return 1;
-	}
-}
-
-namespace pollard_rho{
-	lint f(lint x, lint n, lint c){
-		return (c + miller_rabin::mul(x, x, n)) % n;
-	}
-	void rec(lint n, vector<lint> &v){
-		if(n == 1) return;
-		if(n % 2 == 0){
-			v.push_back(2);
-			rec(n/2, v);
-			return;
-		}
-		if(miller_rabin::isprime(n)){
-			v.push_back(n);
-			return;
-		}
-		lint a, b, c;
-		while(1){
-			a = rand() % (n-2) + 2;
-			b = a;
-			c = rand() % 20 + 1;
-			do{
-				a = f(a, n, c);
-				b = f(f(b, n, c), n, c);
-			}while(gcd(abs(a-b), n) == 1);
-			if(a != b) break;
-		}
-		lint x = gcd(abs(a-b), n);
-		rec(x, v);
-		rec(n/x, v);
-	}
-	vector<lint> factorize(lint n){
-		vector<lint> ret;
-		rec(n, ret);
-		sort(ret.begin(), ret.end());
-		return ret;
-	}
-};
-\end{minted}
-\subsection {Highly Composite Numbers, Large Prime}
-\begin{minted}{cpp}
-	< 10^k          number     divisors   2 3 5 71113171923293137
-	-------------------------------------------------------------
-	1                    6            4   1 1
-	2                   60           12   2 1 1
-	3                  840           32   3 1 1 1
-	4                 7560           64   3 3 1 1
-	5                83160          128   3 3 1 1 1
-	6               720720          240   4 2 1 1 1 1
-	7              8648640          448   6 3 1 1 1 1
-	8             73513440          768   5 3 1 1 1 1 1
-	9            735134400         1344   6 3 2 1 1 1 1
-	10          6983776800         2304   5 3 2 1 1 1 1 1
-	11         97772875200         4032   6 3 2 2 1 1 1 1
-	12        963761198400         6720   6 4 2 1 1 1 1 1 1
-	13       9316358251200        10752   6 3 2 1 1 1 1 1 1 1
-	14      97821761637600        17280   5 4 2 2 1 1 1 1 1 1
-	15     866421317361600        26880   6 4 2 1 1 1 1 1 1 1 1
-	16    8086598962041600        41472   8 3 2 2 1 1 1 1 1 1 1
-	17   74801040398884800        64512   6 3 2 2 1 1 1 1 1 1 1 1
-	18  897612484786617600       103680   8 4 2 2 1 1 1 1 1 1 1 1
-
-	< 10^k    prime   # of prime          < 10^k            prime
-	-------------------------------------------------------------
-	1             7            4          10           9999999967
-	2            97           25          11          99999999977
-	3           997          168          12         999999999989
-	4          9973         1229          13        9999999999971
-	5         99991         9592          14       99999999999973
-	6        999983        78498          15      999999999999989
-	7       9999991       664579          16     9999999999999937
-	8      99999989      5761455          17    99999999999999997
-	9     999999937     50847534          18   999999999999999989
-\end{minted}
-NTT Prime:
-
-$998244353 = 119 \times 2^{23} + 1$. Primitive root: $3$.
-
-$985661441 = 235 \times 2^{22} + 1$. Primitive root: $3$.
-
-$1012924417 = 483 \times 2^{21} + 1$. Primitive root: $5$.
-
 \end{document}
