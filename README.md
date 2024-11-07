@@ -18,4 +18,9 @@ ntopia님 깃허브 : https://github.com/ntopia
 
 241029: 2024 ICPC Seoul Regional 본선 진출(https://icpckorea.org/archives/3155)
 
+## 2024 본선 개인 연습 페이지
+
+[이강욱 본선 연습장](https://changeable-aftershave-67a.notion.site/ICPC-2024-13751c4af5d680149e59d6b8bc57864c)
+
+
 
