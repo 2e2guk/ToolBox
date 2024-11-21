@@ -8,8 +8,8 @@ void getZarray(vector<int> &zValue, string str){
     zValue.resize(str.size() + 1);
 
     reverse(str.begin(), str.end());
-	zValue[0] = str.size();
-	for(int i = 1; i < n; i++){
+    zValue[0] = str.size();
+    for(int i = 1; i < n; i++){
         if(r < i){
             zValue[i] = 0;
             while(str[zValue[i]] == str[i + zValue[i]]) zValue[i]++;
@@ -18,14 +18,14 @@ void getZarray(vector<int> &zValue, string str){
         }
         else{
             if(zValue[i - l] <= r - i)	zValue[i] = zValue[i - l];
-			else{
+            else{
                 zValue[i] = r - i + 1;
-				while(str[zValue[i]] == str[i + zValue[i]]) zValue[i]++;
-				l = i;
-				r = i + zValue[i] - 1;
-			}
+                while(str[zValue[i]] == str[i + zValue[i]]) zValue[i]++;
+                l = i;
+                r = i + zValue[i] - 1;
+            }
         }
-	}
+    }
 }
 
 int main(){
